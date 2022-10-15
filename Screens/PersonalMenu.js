@@ -1,17 +1,29 @@
 import * as React from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
-import colors from '../assets/colors/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Octicons from 'react-native-vector-icons/Octicons';
-
 import {useNavigation} from '@react-navigation/native';
 
+import colors from '../assets/colors/Colors';
 import YellowHeader from '../Components/YellowHeader';
 
 function PersonalMenu() {
+  //params
   const navigation = useNavigation();
+  //functions
+  const deleteData = async () => {
+    try {
+      const value = await AsyncStorage.clear();
+      navigation.navigate('UserCards');
+      //console.warn('all data deleted successfully');
+    } catch (e) {
+      //console.warn('all data are not deleted successfully');
+    }
+  };
   return (
     <View>
       <YellowHeader
@@ -63,7 +75,7 @@ function PersonalMenu() {
       {/* invoices */}
       <TouchableOpacity
         style={styles.optionContainer}
-        onPress={() => navigation.navigate('.....')}>
+        onPress={() => deleteData()}>
         <View style={styles.leftContainer}>
           <View style={styles.iconContainer}>
             <Octicons name="sign-out" size={35} color="212429" />

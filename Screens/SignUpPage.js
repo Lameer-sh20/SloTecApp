@@ -58,10 +58,14 @@ function SignUpPage() {
       Toast.show({
         type: 'error',
         text1: 'Alert!',
-        text2: 'Password must be at least 6 charecters containing 1 letter',
+        text2: 'Password must be <= 6 charecters containing 1 letter',
         visibilityTime: 4000,
       });
-    } else if (name.length == 0 || phone.length == 0 || password.length == 0) {
+    } else if (
+      name.length === 0 ||
+      phone.length === 0 ||
+      password.length === 0
+    ) {
       Toast.show({
         type: 'error',
         text1: 'Alert!',

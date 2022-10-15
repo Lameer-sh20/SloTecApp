@@ -6,16 +6,16 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import colors from '../assets/colors/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-toast-message';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Feather from 'react-native-vector-icons/Feather';
 
 // import components
+import colors from '../assets/colors/Colors';
 import SignHeader from '../Components/SignHeader';
 import LongButton from '../Components/LongButton';
 
@@ -23,15 +23,18 @@ function UserCart() {
   const navigation = useNavigation();
   //parameters
   const [cartProducts, setCartProducts] = useState([]);
-  let [status, setStatus] = useState(0);
+  let [status, setStatus] = useState('');
+  let [cartTotal, setcartTotal] = useState();
 
+  //functions
   useEffect(() => {
     getData();
+    totalCartPrice();
   });
 
   const getData = async () => {
     try {
-      const value = await AsyncStorage.getItem('cart');
+      const value = await AsyncStorage.getItem('CartData');
       if (value !== null) {
         //console.warn('cart is not empty', JSON.parse(value));
         setCartProducts(JSON.parse(value));
@@ -45,97 +48,48 @@ function UserCart() {
     }
   };
 
-  const changeQuantity = async (id, type) => {
-    //console.log('id is', id);
-    const dataCar = cartProducts;
-    //let prod = cartProducts.find(data => data.product.id === id);
-    let currentquant = dataCar[id - 1].quant;
-    //console.error('quant ', currentquant);
-    //let prod = dataCar[id - 1].product;
-    //console.error('prod ', prod);
-    if (type === true) {
-      console.log('should increase');
-      let newquant = currentquant + 1;
-      dataCar[id - 1].quant = newquant;
-      setCartProducts(dataCar);
-      try {
-        await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
-      }
-    } else if (type === false && currentquant >= 2) {
-      console.log('should decrease');
-      let newquant = currentquant - 1;
-      dataCar[id - 1].quant = newquant;
-      setCartProducts(dataCar);
-      try {
-        await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
-      }
-    } else if (type === false && currentquant === 1) {
-      console.log('should delete');
-      let deleted = dataCar.splice(id - 1, 1);
-      console.error('deleted prod ', deleted);
-      try {
-        await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
-      }
-    }
-  };
-
-  const ChangeQuan = async (i, type) => {
-    //console.log('id is', id);
-    const cartData = cartProducts;
-    //let prod = cartProducts.find(data => data.product.id === id);
-    let prod = cartData[i].product;
-    console.log('prod ', prod);
-    let currentquant = cartData[i].quant;
-    console.warn('current quant ', currentquant);
-    if (type === true) {
-      console.log('should increase');
-      let newquant = currentquant + 1;
-      cartData[i].quant = newquant;
-      setCartProducts(cartData);
-      console.warn('new quant ', cartData[i].quant);
-      try {
-        await AsyncStorage.setItem('cart', JSON.stringify(cartData));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
-      }
-    } else if (type === false && currentquant >= 2) {
-      console.log('should decrease');
-      let newquant = currentquant - 1;
-      cartData[i].quant = newquant;
-      setCartProducts(cartData);
-      console.warn('new quant ', cartData[i].quant);
-      try {
-        await AsyncStorage.setItem('cart', JSON.stringify(cartData));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
-      }
-    } else if (
-      (type === false && currentquant === 1) ||
-      cartData.lenght === 0
-    ) {
-      console.log('should delete');
-      let deleted = cartData.splice(i, 1);
-      //console.warn('deleted prod ', deleted);
-      setStatus(JSON.stringify(0));
-      try {
-        await AsyncStorage.setItem('cart', JSON.stringify(cartData));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
-      }
-    }
-  };
+  // const changeQuantity = async (id, type) => {
+  //   //console.log('id is', id);
+  //   const dataCar = cartProducts;
+  //   //let prod = cartProducts.find(data => data.product.id === id);
+  //   let currentquant = dataCar[id - 1].quant;
+  //   //console.error('quant ', currentquant);
+  //   //let prod = dataCar[id - 1].product;
+  //   //console.error('prod ', prod);
+  //   if (type === true) {
+  //     console.log('should increase');
+  //     let newquant = currentquant + 1;
+  //     dataCar[id - 1].quant = newquant;
+  //     setCartProducts(dataCar);
+  //     try {
+  //       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
+  //       //console.warn('update saved!');
+  //     } catch (error) {
+  //       //console.warn('update error,', error);
+  //     }
+  //   } else if (type === false && currentquant >= 2) {
+  //     console.log('should decrease');
+  //     let newquant = currentquant - 1;
+  //     dataCar[id - 1].quant = newquant;
+  //     setCartProducts(dataCar);
+  //     try {
+  //       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
+  //       //console.warn('update saved!');
+  //     } catch (error) {
+  //       //console.warn('update error,', error);
+  //     }
+  //   } else if (type === false && currentquant === 1) {
+  //     console.log('should delete');
+  //     let deleted = dataCar.splice(id - 1, 1);
+  //     console.error('deleted prod ', deleted);
+  //     try {
+  //       await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
+  //       //console.warn('update saved!');
+  //     } catch (error) {
+  //       //console.warn('update error,', error);
+  //     }
+  //   }
+  // };
 
   // const cartList = ({item}) => {
   //   return (
@@ -200,84 +154,169 @@ function UserCart() {
   //   );
   // };
 
+  const ChangeQuan = async (i, type) => {
+    //console.log('id is', id);
+    const cartData = cartProducts;
+    //let prod = cartProducts.find(data => data.product.id === id);
+    let prod = cartData[i].product;
+    console.log('prod ', prod);
+    let currentquant = cartData[i].quant;
+    console.warn('current quant ', currentquant);
+    if (type === true) {
+      console.log('should increase');
+      let newquant = currentquant + 1;
+      cartData[i].quant = newquant;
+      setCartProducts(cartData);
+      console.warn('new quant ', cartData[i].quant);
+      try {
+        await AsyncStorage.setItem('CartData', JSON.stringify(cartData));
+        //console.warn('update saved!');
+      } catch (error) {
+        //console.warn('update error,', error);
+      }
+    } else if (type === false && currentquant >= 2) {
+      console.log('should decrease');
+      let newquant = currentquant - 1;
+      cartData[i].quant = newquant;
+      setCartProducts(cartData);
+      console.warn('new quant ', cartData[i].quant);
+      setStatus(JSON.stringify(1));
+      try {
+        await AsyncStorage.setItem('CartData', JSON.stringify(cartData));
+        //console.warn('update saved!');
+      } catch (error) {
+        //console.warn('update error,', error);
+      }
+    } else if (
+      (type === false && currentquant === 1) ||
+      cartData.lenght === 0
+    ) {
+      console.log('should delete');
+      let deleted = cartData.splice(i, 1);
+      //console.warn('deleted prod ', deleted);
+      setStatus(JSON.stringify(0));
+      try {
+        await AsyncStorage.setItem('CartData', JSON.stringify(cartData));
+        //console.warn('update saved!');
+      } catch (error) {
+        //console.warn('update error,', error);
+      }
+    }
+  };
+  const totalCartPrice = () => {
+    // if type == false prod doesn't have sale price
+    // if type == false prod doesn't have sale price
+    const cartData = cartProducts;
+    var total = 0;
+    for (var i = 0; i < cartData.length; i++) {
+      if (
+        Number(cartData[i].product.saleprice) ===
+        Number(cartData[i].product.price)
+      ) {
+        total += Number(cartData[i].product.price) * Number(cartData[i].quant);
+      } else if (
+        Number(cartData[i].product.saleprice) <
+        Number(cartData[i].product.price)
+      ) {
+        total +=
+          Number(cartData[i].product.saleprice) * Number(cartData[i].quant);
+      }
+    }
+    setcartTotal(total);
+    //console.warn('total is ', total);
+  };
+
   return (
-    <View style={styles.pageContainer}>
+    <View style={{flex: 1}}>
       <SignHeader
         text="Cart"
         onPress={() => navigation.navigate('StorePage')}
       />
-      {/* <TouchableOpacity onPress={() => getData()}>
-        <Text>click me</Text>
-      </TouchableOpacity> */}
-      {status == 0 ? (
-        <View style={styles.warningContainer}>
-          <MaterialCommunityIcons
-            name="alert-circle"
-            size={160}
-            color="#c4c4c4"
-          />
-          <Text style={styles.text}>Your cart is empty</Text>
-        </View>
-      ) : (
-        cartProducts.map((item, i) => {
-          return (
-            <View style={styles.listContainer}>
-              <View style={styles.productContainer}>
-                <View style={styles.name__size_priceContainer}>
-                  <View style={styles.name_sizeContainer}>
-                    <Text style={styles.name}>{item.product.name}</Text>
-                    <Text style={styles.size}>size</Text>
-                  </View>
-                  <View style={styles.priceContainer}>
-                    <Text
-                      style={[
-                        styles.defaultPrice,
-                        item.product.saleprice === undefined
-                          ? styles.salePrice
-                          : styles.oldPrice,
-                      ]}>
-                      SAR {item.product.price}
-                    </Text>
-                    <Text style={styles.salePrice}>
-                      {item.product.saleprice === undefined
-                        ? ' '
-                        : 'SAR ' + item.product.saleprice}
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    height: 1,
-                    backgroundColor: '#E7E7EB',
-                    marginLeft: 10,
-                    marginRight: 10,
-                  }}
-                />
-                <View style={styles.quant_totalContainer}>
-                  <View style={styles.quantCounter}>
-                    <TouchableOpacity
-                      style={styles.plusMinusButtons}
-                      onPress={() => ChangeQuan(i, false)}>
-                      <Feather name="minus" size={20} color="#484038" />
-                    </TouchableOpacity>
-                    <Text style={styles.quantText}>{item.quant}</Text>
-                    <TouchableOpacity
-                      style={styles.plusMinusButtons}
-                      onPress={() => ChangeQuan(i, true)}>
-                      <Feather name="plus" size={20} color="#484038" />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.itemsTotal}>
-                    {item.product.saleprice === undefined
-                      ? 'SAR ' + item.product.price * item.quant
-                      : 'SAR ' + item.product.saleprice * item.quant}
-                  </Text>
-                </View>
-              </View>
+      <View
+        style={{
+          flex: 4.5,
+          paddingTop: 9,
+          backgroundColor: '#F4F4F8',
+        }}>
+        <ScrollView>
+          {cartTotal === 0 ? (
+            <View style={styles.warningContainer}>
+              <MaterialCommunityIcons
+                name="alert-circle"
+                size={160}
+                color="#c4c4c4"
+              />
+              <Text style={styles.text}>Your cart is empty</Text>
             </View>
-          );
-        })
-      )}
+          ) : (
+            cartProducts.map((item, i) => {
+              return (
+                <View style={styles.listContainer}>
+                  <View style={styles.productContainer}>
+                    <View style={styles.name__size_priceContainer}>
+                      <View style={styles.name_sizeContainer}>
+                        <Text style={styles.name}>{item.product.name}</Text>
+                      </View>
+                      <View style={styles.priceContainer}>
+                        <Text
+                          style={[
+                            Number(item.product.saleprice) <
+                            Number(item.product.price)
+                              ? styles.oldPrice
+                              : styles.salePrice,
+                          ]}>
+                          SAR {item.product.price}
+                        </Text>
+                        <Text style={styles.salePrice}>
+                          {Number(item.product.saleprice) ===
+                          Number(item.product.price)
+                            ? ' '
+                            : 'SAR ' + item.product.saleprice}
+                        </Text>
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        height: 1,
+                        backgroundColor: '#E7E7EB',
+                        marginLeft: 10,
+                        marginRight: 10,
+                      }}
+                    />
+                    <View style={styles.quant_totalContainer}>
+                      <View style={styles.quantCounter}>
+                        <TouchableOpacity
+                          style={styles.plusMinusButtons}
+                          onPress={() => ChangeQuan(i, false)}>
+                          <Feather name="minus" size={20} color="#484038" />
+                        </TouchableOpacity>
+                        <Text style={styles.quantText}>{item.quant}</Text>
+                        <TouchableOpacity
+                          style={styles.plusMinusButtons}
+                          onPress={() => ChangeQuan(i, true)}>
+                          <Feather name="plus" size={20} color="#484038" />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={styles.itemTotal}>
+                        {item.product.saleprice === undefined
+                          ? 'SAR ' + item.product.price * item.quant
+                          : 'SAR ' + item.product.saleprice * item.quant}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })
+          )}
+        </ScrollView>
+      </View>
+      <View style={styles.checkoutContainer}>
+        <View style={styles.totalCartContainer}>
+          <Text style={styles.totalText}>Total</Text>
+          <Text style={styles.totalCartText}>SAR {cartTotal}</Text>
+        </View>
+        <LongButton text="Checkout" onPress={() => '...'} />
+      </View>
     </View>
   );
 }
@@ -304,8 +343,6 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 9,
     paddingBottom: 9,
-    flexDirection: 'row',
-    backgroundColor: '#F4F4F8',
   },
   productContainer: {
     backgroundColor: 'white',
@@ -377,10 +414,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemsTotal: {
+  itemTotal: {
     fontFamily: 'Nunito-SemiBold',
     color: colors.blue,
     fontSize: 16,
+  },
+  checkoutContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderWidth: 1.2,
+    borderColor: '#E7E7EB',
+  },
+  totalCartContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  totalText: {
+    fontFamily: 'Nunito-Bold',
+    color: '#212429',
+    fontSize: 17,
+  },
+  totalCartText: {
+    fontFamily: 'Nunito-SemiBold',
+    color: colors.blue,
+    fontSize: 17,
   },
 });
 

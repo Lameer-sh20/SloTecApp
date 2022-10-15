@@ -9,141 +9,185 @@ import {
   FlatList,
 } from 'react-native';
 
-import colors from '../assets/colors/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import Toast from 'react-native-toast-message';
+
+import colors from '../assets/colors/Colors';
 
 function ProductPage({navigation, route}) {
   let [quantity, setQuantity] = useState(1);
   const [cartItem, setcartItem] = useState([]);
-
-  //const route = useRoute();
-  //const {itemId} = route.params;
   const {item} = route.params;
+  //console.log('params', item);
   const itemInfo = [];
   itemInfo.push(item);
 
+  let barcode = '';
+  try {
+    barcode = route.params.barcode;
+  } catch (e) {
+    console.log('no barcode', barcode);
+  }
+
+  //functions
+  useEffect(() => {
+    getData();
+  });
   const increment = () => {
     const value = (quantity += 1);
-    console.log(quantity);
+    //console.log('increament', quantity);
     setQuantity(value);
   };
   const decremeant = () => {
     if (quantity > 1) {
       const value = (quantity -= 1);
-      console.log('decrement', quantity);
+      //console.log('decrement', quantity);
       setQuantity(value);
     } else {
       //setQuantity(value);
       console.log('no less than zero', quantity);
     }
   };
-  const addToCart = async data => {
-    const cartProduct = {
-      product: data,
-      quant: quantity,
-    };
-    // const cartProduct = [
-    //   {
-    //     product: data,
-    //     quant: quantity,
-    //   },
-    // ];
-    // try {
-    //   await AsyncStorage.setItem('cart', JSON.stringify(cartProduct));
-    //   console.warn('product saved!');
-    // } catch (error) {
-    //   console.warn('product error,', error);
-    // }
-    await AsyncStorage.getItem('cart')
-      .then(res => {
-        if (res != null) {
-          //console.warn('is not null', res);
-          const newcart = JSON.parse(res);
-          //console.warn('newcart', cartProduct);
-          newcart.push(cartProduct);
-          //console.warn('add to newcart', newcart);
-          AsyncStorage.setItem('cart', JSON.stringify(newcart));
-          console.warn('product saved!');
-        } else {
-          console.warn('cart is empty');
-          const newcart = [];
-          newcart.push(cartProduct);
-          AsyncStorage.setItem('cart', JSON.stringify(newcart));
-        }
-        console.warn('Add Cart');
-      })
-      .catch(err => {
-        console.warn(err);
-      });
-    // try {
-    //   if (cart !== null) {
-    //     console.warn('cart has items');
-    //     const newcart = JSON.parse(cart);
-    //     newcart.push(cartProduct);
-    //     await AsyncStorage.setItem('cart', JSON.stringify(newcart));
-    //     console.warn('cart is not null');
-    //   } else {
-    //     console.warn('cart is empty');
-    //   }
-    // } catch (e) {
-    //   console.warn('cant add to cart', e);
-    // }
-    ////////////////////
-    // try {
-    //   const value = JSON.parse(JSON.stringify({data}));
-    //   console.log('cant store', value);
-    //   setcartItem(value(data));
-    // } catch (e) {
-    //   console.log('cant store', e);
-    // }
 
-    //console.warn(data);
-    //const cartProduct = {product: data, quant: quantity};
-    //const existingProducts = await AsyncStorage.getItem('Cart');
-    // let newProduct = JSON.parse(existingProducts);
-    // if (!newProduct) {
-    //   newProduct = [];
-    //   newProduct.push(cartProduct);
-    // }
-    // await AsyncStorage.setItem('Cart', JSON.stringify(newProduct))
-    //   .then(() => {
-    //     console.log('It was saved successfully');
-    //   })
-    //   .catch(() => {
-    //     console.log('There was an error saving the product');
-    //   });
-    // try {
-    //   await AsyncStorage.getItem('Cart').then(cart => {
-    //     if (cart != null) {
-    //       console.warn('cart has items');
-    //       const value = JSON.parse(cart);
-    //       value.push(data);
-    //       AsyncStorage.setItem('UserCart', JSON.stringify(value));
-    //       console.warn('cart is not null');
-    //     } else {
-    //       console.warn('cart is empty');
-    //       const value = [];
-    //       value.push(data);
-    //       AsyncStorage.setItem('Cart', JSON.stringify(value));
-    //       console.warn('cart was null');
-    //     }
-    //     console.warn('check successfully');
-    //   });
-    // } catch (error) {
-    //   console.warn('error,', error);
-    // }
+  // add to cart even if product exists !!
+  // const addToCart = async data => {
+  //   //console.warn('new !!!', data.id);
+  //   const cartProduct = {
+  //     product: data,
+  //     quant: quantity,
+  //   };
+  //   let prod = cartItem.find(item => item.product.id === data.id);
+
+  //   // const cartProduct = [
+  //   //   {
+  //   //     product: data,
+  //   //     quant: quantity,
+  //   //   },
+  //   // ];
+  //   // try {
+  //   //   await AsyncStorage.setItem('cart', JSON.stringify(cartProduct));
+  //   //   console.warn('product saved!');
+  //   // } catch (error) {
+  //   //   console.warn('product error,', error);
+  //   // }
+  //   await AsyncStorage.getItem('CartData')
+  //     .then(res => {
+  //       if (res != null) {
+  //         //console.warn('is not null', res);
+  //         const newcart = JSON.parse(res);
+  //         //console.warn('new product', cartProduct);
+  //         newcart.push(cartProduct);
+  //         //console.warn('add to cart', newcart);
+  //         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
+  //         console.warn('product saved!');
+  //       } else {
+  //         console.warn('cart is empty');
+  //         const newcart = [];
+  //         newcart.push(cartProduct);
+  //         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
+  //       }
+  //     })
+  //     .catch(err => {
+  //       console.warn(err);
+  //     });
+  //   // try {
+  //   //   if (cart !== null) {
+  //   //     console.warn('cart has items');
+  //   //     const newcart = JSON.parse(cart);
+  //   //     newcart.push(cartProduct);
+  //   //     await AsyncStorage.setItem('cart', JSON.stringify(newcart));
+  //   //     console.warn('cart is not null');
+  //   //   } else {
+  //   //     console.warn('cart is empty');
+  //   //   }
+  //   // } catch (e) {
+  //   //   console.warn('cant add to cart', e);
+  //   // }
+  //   ////////////////////
+  //   // try {
+  //   //   const value = JSON.parse(JSON.stringify({data}));
+  //   //   console.log('cant store', value);
+  //   //   setcartItem(value(data));
+  //   // } catch (e) {
+  //   //   console.log('cant store', e);
+  //   // }
+
+  //   //console.warn(data);
+  //   //const cartProduct = {product: data, quant: quantity};
+  //   //const existingProducts = await AsyncStorage.getItem('Cart');
+  //   // let newProduct = JSON.parse(existingProducts);
+  //   // if (!newProduct) {
+  //   //   newProduct = [];
+  //   //   newProduct.push(cartProduct);
+  //   // }
+  //   // await AsyncStorage.setItem('Cart', JSON.stringify(newProduct))
+  //   //   .then(() => {
+  //   //     console.log('It was saved successfully');
+  //   //   })
+  //   //   .catch(() => {
+  //   //     console.log('There was an error saving the product');
+  //   //   });
+  //   // try {
+  //   //   await AsyncStorage.getItem('Cart').then(cart => {
+  //   //     if (cart != null) {
+  //   //       console.warn('cart has items');
+  //   //       const value = JSON.parse(cart);
+  //   //       value.push(data);
+  //   //       AsyncStorage.setItem('UserCart', JSON.stringify(value));
+  //   //       console.warn('cart is not null');
+  //   //     } else {
+  //   //       console.warn('cart is empty');
+  //   //       const value = [];
+  //   //       value.push(data);
+  //   //       AsyncStorage.setItem('Cart', JSON.stringify(value));
+  //   //       console.warn('cart was null');
+  //   //     }
+  //   //     console.warn('check successfully');
+  //   //   });
+  //   // } catch (error) {
+  //   //   console.warn('error,', error);
+  //   // }
+  // };
+
+  const addToCart1 = async data => {
+    let prod = cartItem.find(pro => pro.product.id === data.id);
+    try {
+      if (prod.product.id !== undefined) {
+        //console.error('prod found ', prod);
+        Toast.show({
+          type: 'error',
+          text1: 'Product is already in cart ',
+          visibilityTime: 4000,
+        });
+      } else {
+        console.error('should not be here ');
+      }
+    } catch (r) {
+      //console.error('prod not found ', r);
+      const cartProduct = {
+        product: data,
+        quant: quantity,
+      };
+      cartItem.push(cartProduct);
+      //console.warn('add to cart', newcart);
+      AsyncStorage.setItem('CartData', JSON.stringify(cartItem));
+      console.warn('product saved!');
+    }
   };
+
   const getData = async () => {
     try {
       //const value = await AsyncStorage.clear();
-      const value = await AsyncStorage.getItem('cart');
+      const value = await AsyncStorage.getItem('CartData');
       if (value !== null) {
-        console.warn('got it', JSON.parse(value));
+        setcartItem(JSON.parse(value));
+        // const cartData = cartItem;
+        //console.warn('got it', JSON.parse(value).product);
       } else {
-        console.warn('nothing', value);
+        //console.warn('nothing', value);
       }
     } catch (e) {
       // error reading value
@@ -174,6 +218,11 @@ function ProductPage({navigation, route}) {
       <ScrollView style={{backgroundColor: '#E7E7EB'}}>
         <View style={styles.prodImageContainer}>
           <Image style={{width: 64, height: 64}} source={{uri: item.uri}} />
+          <Toast
+            ref={ref => {
+              Toast.setRef(ref);
+            }}
+          />
         </View>
         {/** product info */}
         <View style={styles.productContainer}>
@@ -181,19 +230,19 @@ function ProductPage({navigation, route}) {
           <View style={styles.name_price}>
             <Text style={styles.name}>{item.name}</Text>
             <View style={styles.size_priceContainer}>
-              <Text style={styles.size}>xxxml</Text>
               <View style={styles.priceContainer}>
                 <Text
                   style={[
-                    styles.defaultPrice,
-                    item.saleprice === undefined
-                      ? styles.salePrice
-                      : styles.oldPrice,
+                    Number(item.saleprice) < Number(item.price)
+                      ? styles.oldPrice
+                      : styles.salePrice,
                   ]}>
                   SAR {item.price}
                 </Text>
                 <Text style={styles.salePrice}>
-                  {item.saleprice === undefined ? ' ' : 'SAR ' + item.saleprice}
+                  {Number(item.saleprice) === Number(item.price)
+                    ? ' '
+                    : 'SAR ' + item.saleprice}
                 </Text>
               </View>
             </View>
@@ -214,7 +263,7 @@ function ProductPage({navigation, route}) {
               </TouchableOpacity>
             </View>
             <TouchableOpacity
-              onPress={() => addToCart(item)}
+              onPress={() => addToCart1(item)}
               style={styles.addToCartContainer}>
               <MaterialCommunityIcons
                 name="cart-plus"
@@ -291,12 +340,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
+    borderColor: '#E7E7EB',
+    borderTopWidth: 1.2,
+    borderLeftWidth: 1.5,
+    borderRightWidth: 1.5,
   },
   name_price: {
     paddingHorizontal: 16,
     paddingTop: 16,
     //alignItems: 'center',
-    flexDirection: 'column',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   name: {
     fontFamily: 'Nunito-Bold',

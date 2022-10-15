@@ -32,6 +32,7 @@ function StoresMenu() {
       id: '2',
       name: 'orange',
       price: '15',
+      saleprice: '15',
       info: 'it is good',
 
       uri: 'https://reactnative.dev/img/tiny_logo.png',
@@ -49,6 +50,8 @@ function StoresMenu() {
       id: '4',
       name: 'melon',
       price: '25',
+      saleprice: '25',
+
       info: 'it is good',
 
       uri: 'https://reactnative.dev/img/tiny_logo.png',
@@ -57,6 +60,8 @@ function StoresMenu() {
       id: '5',
       name: 'mango',
       price: '30',
+      saleprice: '25',
+
       info: 'it is good',
 
       uri: 'https://reactnative.dev/img/tiny_logo.png',
@@ -65,6 +70,8 @@ function StoresMenu() {
       id: '6',
       name: 'kiwi',
       price: '35',
+      saleprice: '35',
+
       info: 'it is good',
 
       uri: 'https://reactnative.dev/img/tiny_logo.png',
@@ -73,6 +80,8 @@ function StoresMenu() {
       id: '7',
       name: 'blueberry',
       price: '40',
+      saleprice: '40',
+
       info: 'it is good',
       uri: 'https://reactnative.dev/img/tiny_logo.png',
     },
@@ -92,6 +101,7 @@ function StoresMenu() {
       console.warn('storedata error,', error);
     }
   };
+
   ///    uncomment this to see the store info from storage
   // const getData = async () => {
   //   try {

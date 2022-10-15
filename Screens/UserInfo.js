@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   label: {
-    fontFamily: 'Nunito-Regular',
+    fontFamily: 'Nunito-SemiBold',
     color: '#212429',
     fontSize: 17,
     marginLeft: 10,

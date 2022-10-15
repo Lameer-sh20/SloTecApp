@@ -71,7 +71,7 @@ function App() {
           name="CameraPage"
           component={CameraPage}
           options={{headerShown: false}}
-        />*/}
+        />
         <Stack.Screen
           name="Home_noStorePage"
           component={Home_noStorePage}
@@ -96,7 +96,7 @@ function App() {
           name="StorePage"
           component={StorePage}
           options={{headerShown: false}}
-        />
+        />*/}
         <Stack.Screen
           name="PersonalMenu"
           component={PersonalMenu}

@@ -1,15 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  AsyncStorage,
-} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import colors from '../assets/colors/Colors';
 import {useNavigation} from '@react-navigation/native';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import UserHeader from '../Components/UserHeader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Home_noStorePage() {
   const navigation = useNavigation();

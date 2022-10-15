@@ -62,13 +62,16 @@ function Home_xStorePage({navigation}) {
           <Text style={styles.productName}>{item.name}</Text>
           <Text
             style={[
-              styles.defaultPrice,
-              item.saleprice === undefined ? styles.salePrice : styles.oldPrice,
+              Number(item.saleprice) < Number(item.price)
+                ? styles.oldPrice
+                : styles.salePrice,
             ]}>
             SAR {item.price}
           </Text>
           <Text style={styles.salePrice}>
-            {item.saleprice === undefined ? ' ' : 'SAR ' + item.saleprice}
+            {Number(item.saleprice) === Number(item.price)
+              ? ' '
+              : 'SAR ' + item.saleprice}
           </Text>
         </View>
       </TouchableOpacity>

@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderColor: '#E7E7EB',
     borderWidth: 0.5,
-    fontFamily: 'Nunito-Bold',
+    fontFamily: 'Nunito-Regular',
     fontSize: 16,
     fontWeight: '400',
   },
