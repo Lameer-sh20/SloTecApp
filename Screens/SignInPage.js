@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
 // import components
+import {REACT_APP_address} from '@env';
 import SignHeader from '../Components/SignHeader';
 import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';
@@ -57,7 +58,7 @@ function SignInPage() {
       });
       //console.warn('fill the required info');
     } else {
-      fetch('http://192.168.8.111:3000/user/login', {
+      fetch('http:/' + REACT_APP_address + ':3000/user/login', {
         method: 'POST', // or 'PUT'
         headers: {
           'Content-Type': 'application/json',

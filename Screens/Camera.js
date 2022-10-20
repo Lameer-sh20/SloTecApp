@@ -26,21 +26,25 @@ class CameraPage extends Component {
   }
 
   async onBarCodeRead(scanResult) {
-    console.warn(scanResult.type);
-    console.warn(scanResult.data);
+    //console.warn(scanResult.type);
+    //console.warn(scanResult.data);
     if (
       scanResult.data != null &&
       !this.barcodeCodes.includes(scanResult.data)
     ) {
       this.barcodeCodes.push(scanResult.data);
-      console.warn('onBarCodeRead call');
-      console.log('lenght is', this.barcodeCodes.length);
-      if (this.barcodeCodes.length == 1) {
-        console.log('saved');
-        console.log('barcode is', scanResult.data);
+      //console.warn('onBarCodeRead call');
+      //console.log('lenght is', this.barcodeCodes.length);
+      if (this.barcodeCodes.length === 1) {
+        //console.log('saved');
+        //log('barcode is', scanResult.data);
         AsyncStorage.setItem('Barcode', scanResult.data);
-        this.props.navigation.navigate('RandomPage');
+        this.barcodeCodes = [];
+        this.props.navigation.navigate('ScannedProductPage');
       }
+      //console.log('saved is', this.barcodeCodes);
+      this.barcodeCodes = [];
+      //console.log('after is  is', this.barcodeCodes);
     }
     return;
   }

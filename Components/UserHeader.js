@@ -4,7 +4,7 @@ import colors from '../assets/colors/Colors';
 import {useNavigation} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-function UserHeader({name}) {
+function UserHeader({name, storename}) {
   const navigation = useNavigation();
 
   return (
@@ -19,7 +19,7 @@ function UserHeader({name}) {
             source={require('../assets/Images/location.png')}
             style={styles.imageLocation}
           />
-          <Text style={styles.textLocation}> xxxx store</Text>
+          <Text style={styles.textLocation}>{'  ' + storename}</Text>
         </TouchableOpacity>
         {/* name & cart container */}
         <View style={styles.name_cartContainer}>
@@ -28,10 +28,6 @@ function UserHeader({name}) {
             onPress={() => navigation.navigate('PersonalMenu')}
             style={styles.nameContainer}>
             <Text style={styles.textName}>Hello, {name}</Text>
-            <Image
-              source={require('../assets/Images/warning.png')}
-              style={styles.imageWarning}
-            />
           </TouchableOpacity>
           {/* cart icon Container */}
           <TouchableOpacity

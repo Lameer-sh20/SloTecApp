@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -15,11 +15,23 @@ function PersonalMenu() {
   //params
   const navigation = useNavigation();
   //functions
-  const deleteData = async () => {
+  const signOut = async () => {
     try {
-      const value = await AsyncStorage.clear();
-      navigation.navigate('UserCards');
-      //console.warn('all data deleted successfully');
+      await AsyncStorage.clear();
+      Alert.alert('Sign out', 'Do you want to sign out from SloTec?', [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            console.warn('all data deleted successfully');
+            navigation.navigate('MainPage');
+          },
+        },
+      ]);
     } catch (e) {
       //console.warn('all data are not deleted successfully');
     }
@@ -72,10 +84,10 @@ function PersonalMenu() {
           <AntDesign name="right" size={30} color="212429" />
         </View>
       </TouchableOpacity>
-      {/* invoices */}
+      {/* sign out */}
       <TouchableOpacity
         style={styles.optionContainer}
-        onPress={() => deleteData()}>
+        onPress={() => signOut()}>
         <View style={styles.leftContainer}>
           <View style={styles.iconContainer}>
             <Octicons name="sign-out" size={35} color="212429" />

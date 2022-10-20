@@ -4,8 +4,8 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   ScrollView,
+  Image,
   Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
@@ -23,151 +23,71 @@ function UserCart() {
   const navigation = useNavigation();
   //parameters
   const [cartProducts, setCartProducts] = useState([]);
-  let [status, setStatus] = useState('');
   let [cartTotal, setcartTotal] = useState();
 
   //functions
   useEffect(() => {
     getData();
+  }, [cartProducts]);
+
+  useEffect(() => {
+    const totalCartPrice = async () => {
+      // if type == false prod doesn't have sale price
+      // if type == false prod doesn't have sale price
+      const cartData = cartProducts;
+      var total = 0;
+      for (var i = 0; i < cartData.length; i++) {
+        if (
+          Number(cartData[i].product.sellPrice) ===
+          Number(cartData[i].product.price)
+        ) {
+          total +=
+            Number(cartData[i].product.price) * Number(cartData[i].quant);
+        } else if (
+          Number(cartData[i].product.sellPrice) <
+          Number(cartData[i].product.price)
+        ) {
+          total +=
+            Number(cartData[i].product.sellPrice) * Number(cartData[i].quant);
+        }
+      }
+      setcartTotal(total);
+      //console.warn('total is ', total);
+    };
     totalCartPrice();
-  });
+  }, [cartProducts]);
 
   const getData = async () => {
     try {
       const value = await AsyncStorage.getItem('CartData');
       if (value !== null) {
-        //console.warn('cart is not empty', JSON.parse(value));
+        //console.warn('cart is not empty', cartProducts.length);
         setCartProducts(JSON.parse(value));
-        setStatus(JSON.stringify(1));
+        //console.warn('cart is not empty', JSON.parse(value));
       } else {
         //console.warn('cart is empty', value);
-        setStatus(JSON.stringify(0));
       }
     } catch (e) {
       // error reading value
     }
   };
 
-  // const changeQuantity = async (id, type) => {
-  //   //console.log('id is', id);
-  //   const dataCar = cartProducts;
-  //   //let prod = cartProducts.find(data => data.product.id === id);
-  //   let currentquant = dataCar[id - 1].quant;
-  //   //console.error('quant ', currentquant);
-  //   //let prod = dataCar[id - 1].product;
-  //   //console.error('prod ', prod);
-  //   if (type === true) {
-  //     console.log('should increase');
-  //     let newquant = currentquant + 1;
-  //     dataCar[id - 1].quant = newquant;
-  //     setCartProducts(dataCar);
-  //     try {
-  //       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
-  //       //console.warn('update saved!');
-  //     } catch (error) {
-  //       //console.warn('update error,', error);
-  //     }
-  //   } else if (type === false && currentquant >= 2) {
-  //     console.log('should decrease');
-  //     let newquant = currentquant - 1;
-  //     dataCar[id - 1].quant = newquant;
-  //     setCartProducts(dataCar);
-  //     try {
-  //       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
-  //       //console.warn('update saved!');
-  //     } catch (error) {
-  //       //console.warn('update error,', error);
-  //     }
-  //   } else if (type === false && currentquant === 1) {
-  //     console.log('should delete');
-  //     let deleted = dataCar.splice(id - 1, 1);
-  //     console.error('deleted prod ', deleted);
-  //     try {
-  //       await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
-  //       //console.warn('update saved!');
-  //     } catch (error) {
-  //       //console.warn('update error,', error);
-  //     }
-  //   }
-  // };
-
-  // const cartList = ({item}) => {
-  //   return (
-  //     <View style={styles.listContainer}>
-  //       {/**info */}
-  //       <View style={styles.productContainer}>
-  //         <View style={styles.name__size_priceContainer}>
-  //           <View style={styles.name_sizeContainer}>
-  //             <Text style={styles.name}>
-  //               {item.product.name} and {item.product.id}
-  //             </Text>
-  //             <Text style={styles.size}>size</Text>
-  //           </View>
-  //           <View style={styles.priceContainer}>
-  //             <Text
-  //               style={[
-  //                 styles.defaultPrice,
-  //                 item.product.saleprice === undefined
-  //                   ? styles.salePrice
-  //                   : styles.oldPrice,
-  //               ]}>
-  //               SAR {item.product.price}
-  //             </Text>
-  //             <Text style={styles.salePrice}>
-  //               {item.product.saleprice === undefined
-  //                 ? ' '
-  //                 : 'SAR ' + item.product.saleprice}
-  //             </Text>
-  //           </View>
-  //         </View>
-  //         {/**line */}
-  //         <View
-  //           style={{
-  //             height: 1,
-  //             backgroundColor: '#E7E7EB',
-  //             marginLeft: 10,
-  //             marginRight: 10,
-  //           }}
-  //         />
-  //         <View style={styles.quant_totalContainer}>
-  //           <View style={styles.quantCounter}>
-  //             <TouchableOpacity
-  //               style={styles.plusMinusButtons}
-  //               onPress={() => changeQuantity(item.product.id, false)}>
-  //               <Feather name="minus" size={20} color="#484038" />
-  //             </TouchableOpacity>
-  //             <Text style={styles.quantText}>{item.quant}</Text>
-  //             <TouchableOpacity
-  //               style={styles.plusMinusButtons}
-  //               onPress={() => changeQuantity(item.product.id, true)}>
-  //               <Feather name="plus" size={20} color="#484038" />
-  //             </TouchableOpacity>
-  //           </View>
-  //           <Text style={styles.itemsTotal}>
-  //             {item.product.saleprice === undefined
-  //               ? 'SAR ' + item.product.price * item.quant
-  //               : 'SAR ' + item.product.saleprice * item.quant}
-  //           </Text>
-  //         </View>
-  //       </View>
-  //     </View>
-  //   );
-  // };
-
   const ChangeQuan = async (i, type) => {
+    //const value = await AsyncStorage.getItem('CartData');
+    //setCartProducts(JSON.parse(value));
     //console.log('id is', id);
     const cartData = cartProducts;
     //let prod = cartProducts.find(data => data.product.id === id);
-    let prod = cartData[i].product;
-    console.log('prod ', prod);
+    //let prod = cartData[i].product;
+    //console.log('prod ', prod);
     let currentquant = cartData[i].quant;
-    console.warn('current quant ', currentquant);
+    //console.warn('current quant ', currentquant);
     if (type === true) {
-      console.log('should increase');
+      //console.log('should increase');
       let newquant = currentquant + 1;
       cartData[i].quant = newquant;
       setCartProducts(cartData);
-      console.warn('new quant ', cartData[i].quant);
+      //console.warn('new quant ', cartData[i].quant);
       try {
         await AsyncStorage.setItem('CartData', JSON.stringify(cartData));
         //console.warn('update saved!');
@@ -175,12 +95,11 @@ function UserCart() {
         //console.warn('update error,', error);
       }
     } else if (type === false && currentquant >= 2) {
-      console.log('should decrease');
+      //console.log('should decrease');
       let newquant = currentquant - 1;
       cartData[i].quant = newquant;
       setCartProducts(cartData);
-      console.warn('new quant ', cartData[i].quant);
-      setStatus(JSON.stringify(1));
+      //console.warn('new quant ', cartData[i].quant);
       try {
         await AsyncStorage.setItem('CartData', JSON.stringify(cartData));
         //console.warn('update saved!');
@@ -194,7 +113,6 @@ function UserCart() {
       console.log('should delete');
       let deleted = cartData.splice(i, 1);
       //console.warn('deleted prod ', deleted);
-      setStatus(JSON.stringify(0));
       try {
         await AsyncStorage.setItem('CartData', JSON.stringify(cartData));
         //console.warn('update saved!');
@@ -203,27 +121,21 @@ function UserCart() {
       }
     }
   };
-  const totalCartPrice = () => {
-    // if type == false prod doesn't have sale price
-    // if type == false prod doesn't have sale price
-    const cartData = cartProducts;
-    var total = 0;
-    for (var i = 0; i < cartData.length; i++) {
-      if (
-        Number(cartData[i].product.saleprice) ===
-        Number(cartData[i].product.price)
-      ) {
-        total += Number(cartData[i].product.price) * Number(cartData[i].quant);
-      } else if (
-        Number(cartData[i].product.saleprice) <
-        Number(cartData[i].product.price)
-      ) {
-        total +=
-          Number(cartData[i].product.saleprice) * Number(cartData[i].quant);
-      }
+
+  const setData = async () => {
+    const purchase = {
+      products: cartProducts,
+      total: cartTotal,
+    };
+    //console.warn('purchase data products', purchase.products);
+
+    try {
+      AsyncStorage.setItem('PurchaseData', JSON.stringify(purchase));
+      console.warn('purchase data saved');
+      navigation.navigate('CheckoutPage');
+    } catch (e) {
+      console.error('purchase data not saved');
     }
-    setcartTotal(total);
-    //console.warn('total is ', total);
   };
 
   return (
@@ -239,7 +151,7 @@ function UserCart() {
           backgroundColor: '#F4F4F8',
         }}>
         <ScrollView>
-          {cartTotal === 0 ? (
+          {cartProducts.length === 0 ? (
             <View style={styles.warningContainer}>
               <MaterialCommunityIcons
                 name="alert-circle"
@@ -255,23 +167,31 @@ function UserCart() {
                   <View style={styles.productContainer}>
                     <View style={styles.name__size_priceContainer}>
                       <View style={styles.name_sizeContainer}>
+                        <Image
+                          style={{width: 40, height: 40, marginRight: 9}}
+                          source={{
+                            uri:
+                              'http://192.168.8.111:3000//' +
+                              item.product.image.replace(/\\/g, '//'),
+                          }}
+                        />
                         <Text style={styles.name}>{item.product.name}</Text>
                       </View>
                       <View style={styles.priceContainer}>
                         <Text
                           style={[
-                            Number(item.product.saleprice) <
+                            Number(item.product.sellPrice) <
                             Number(item.product.price)
                               ? styles.oldPrice
-                              : styles.salePrice,
+                              : styles.sellPrice,
                           ]}>
                           SAR {item.product.price}
                         </Text>
-                        <Text style={styles.salePrice}>
-                          {Number(item.product.saleprice) ===
+                        <Text style={styles.sellPrice}>
+                          {Number(item.product.sellPrice) ===
                           Number(item.product.price)
                             ? ' '
-                            : 'SAR ' + item.product.saleprice}
+                            : 'SAR ' + item.product.sellPrice}
                         </Text>
                       </View>
                     </View>
@@ -298,9 +218,9 @@ function UserCart() {
                         </TouchableOpacity>
                       </View>
                       <Text style={styles.itemTotal}>
-                        {item.product.saleprice === undefined
+                        {item.product.sellPrice === undefined
                           ? 'SAR ' + item.product.price * item.quant
-                          : 'SAR ' + item.product.saleprice * item.quant}
+                          : 'SAR ' + item.product.sellPrice * item.quant}
                       </Text>
                     </View>
                   </View>
@@ -315,7 +235,7 @@ function UserCart() {
           <Text style={styles.totalText}>Total</Text>
           <Text style={styles.totalCartText}>SAR {cartTotal}</Text>
         </View>
-        <LongButton text="Checkout" onPress={() => '...'} />
+        <LongButton text="Checkout" onPress={() => setData()} />
       </View>
     </View>
   );
@@ -352,13 +272,22 @@ const styles = StyleSheet.create({
     width: '100%',
     //height: '100%',
   },
+  prodImageContainer: {
+    width: '100%',
+    height: '20%',
+    backgroundColor: '#E7E7EB',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
   name__size_priceContainer: {
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   name_sizeContainer: {
-    //add if needed
+    flexDirection: 'row',
   },
   name: {
     fontFamily: 'Nunito-Bold',
@@ -384,7 +313,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textDecorationLine: 'line-through',
   },
-  salePrice: {
+  sellPrice: {
     fontFamily: 'Nunito-SemiBold',
     color: '#212429',
     fontSize: 16,
@@ -443,82 +372,116 @@ const styles = StyleSheet.create({
   },
 });
 
-// return this.state.laps.map((data) => {
+// cartProducts.map((item, i) => {
 //   return (
-//     <View><Text>{data.time}</Text></View>
-//   )
+//     <View>
+//       <Text>print {item.product.name}</Text>
+//     </View>
+//   );
 // })
-{
-  /* <View style={{}}>
-          <FlatList
-            data={cartProducts}
-            keyExtractor={item => item.product.id}
-            renderItem={cartList}
-            contentContainerStyle={{
-              flexGrow: 1,
-            }}
-          />
-        </View> */
-}
-{
-  /**
-        cartProducts.map((item, i) => {
-          return (
-            <View style={styles.listContainer}>
-              <View style={styles.productContainer}>
-                <View style={styles.name__size_priceContainer}>
-                  <View style={styles.name_sizeContainer}>
-                    <Text style={styles.name}>{item.product.name}</Text>
-                    <Text style={styles.size}>size</Text>
-                  </View>
-                  <View style={styles.priceContainer}>
-                    <Text
-                      style={[
-                        styles.defaultPrice,
-                        item.product.saleprice === undefined
-                          ? styles.salePrice
-                          : styles.oldPrice,
-                      ]}>
-                      SAR {item.product.price}
-                    </Text>
-                    <Text style={styles.salePrice}>
-                      {item.product.saleprice === undefined
-                        ? ' '
-                        : 'SAR ' + item.product.saleprice}
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    height: 1,
-                    backgroundColor: '#E7E7EB',
-                    marginLeft: 10,
-                    marginRight: 10,
-                  }}
-                />
-                <View style={styles.quant_totalContainer}>
-                  <View style={styles.quantCounter}>
-                    <TouchableOpacity
-                      style={styles.plusMinusButtons}
-                      onPress={() => ChangeQuan(i, false)}>
-                      <Feather name="minus" size={20} color="#484038" />
-                    </TouchableOpacity>
-                    <Text style={styles.quantText}>{item.quant}</Text>
-                    <TouchableOpacity
-                      style={styles.plusMinusButtons}
-                      onPress={() => ChangeQuan(i, true)}>
-                      <Feather name="plus" size={20} color="#484038" />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.itemsTotal}>
-                    {item.product.saleprice === undefined
-                      ? 'SAR ' + item.product.price * item.quant
-                      : 'SAR ' + item.product.saleprice * item.quant}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          );
-        })
-*/
-}
+
+// const changeQuantity = async (id, type) => {
+//   //console.log('id is', id);
+//   const dataCar = cartProducts;
+//   //let prod = cartProducts.find(data => data.product.id === id);
+//   let currentquant = dataCar[id - 1].quant;
+//   //console.error('quant ', currentquant);
+//   //let prod = dataCar[id - 1].product;
+//   //console.error('prod ', prod);
+//   if (type === true) {
+//     console.log('should increase');
+//     let newquant = currentquant + 1;
+//     dataCar[id - 1].quant = newquant;
+//     setCartProducts(dataCar);
+//     try {
+//       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
+//       //console.warn('update saved!');
+//     } catch (error) {
+//       //console.warn('update error,', error);
+//     }
+//   } else if (type === false && currentquant >= 2) {
+//     console.log('should decrease');
+//     let newquant = currentquant - 1;
+//     dataCar[id - 1].quant = newquant;
+//     setCartProducts(dataCar);
+//     try {
+//       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
+//       //console.warn('update saved!');
+//     } catch (error) {
+//       //console.warn('update error,', error);
+//     }
+//   } else if (type === false && currentquant === 1) {
+//     console.log('should delete');
+//     let deleted = dataCar.splice(id - 1, 1);
+//     console.error('deleted prod ', deleted);
+//     try {
+//       await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
+//       //console.warn('update saved!');
+//     } catch (error) {
+//       //console.warn('update error,', error);
+//     }
+//   }
+// };
+
+// const cartList = ({item}) => {
+//   return (
+//     <View style={styles.listContainer}>
+//       {/**info */}
+//       <View style={styles.productContainer}>
+//         <View style={styles.name__size_priceContainer}>
+//           <View style={styles.name_sizeContainer}>
+//             <Text style={styles.name}>
+//               {item.product.name} and {item.product.id}
+//             </Text>
+//             <Text style={styles.size}>size</Text>
+//           </View>
+//           <View style={styles.priceContainer}>
+//             <Text
+//               style={[
+//                 styles.defaultPrice,
+//                 item.product.sellPrice === undefined
+//                   ? styles.sellPrice
+//                   : styles.oldPrice,
+//               ]}>
+//               SAR {item.product.price}
+//             </Text>
+//             <Text style={styles.sellPrice}>
+//               {item.product.sellPrice === undefined
+//                 ? ' '
+//                 : 'SAR ' + item.product.sellPrice}
+//             </Text>
+//           </View>
+//         </View>
+//         {/**line */}
+//         <View
+//           style={{
+//             height: 1,
+//             backgroundColor: '#E7E7EB',
+//             marginLeft: 10,
+//             marginRight: 10,
+//           }}
+//         />
+//         <View style={styles.quant_totalContainer}>
+//           <View style={styles.quantCounter}>
+//             <TouchableOpacity
+//               style={styles.plusMinusButtons}
+//               onPress={() => changeQuantity(item.product.id, false)}>
+//               <Feather name="minus" size={20} color="#484038" />
+//             </TouchableOpacity>
+//             <Text style={styles.quantText}>{item.quant}</Text>
+//             <TouchableOpacity
+//               style={styles.plusMinusButtons}
+//               onPress={() => changeQuantity(item.product.id, true)}>
+//               <Feather name="plus" size={20} color="#484038" />
+//             </TouchableOpacity>
+//           </View>
+//           <Text style={styles.itemsTotal}>
+//             {item.product.sellPrice === undefined
+//               ? 'SAR ' + item.product.price * item.quant
+//               : 'SAR ' + item.product.sellPrice * item.quant}
+//           </Text>
+//         </View>
+//       </View>
+//     </View>
+//   );
+// };

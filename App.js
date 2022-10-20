@@ -25,6 +25,8 @@ import UserCart from './Screens/UserCart';
 import CameraPage from './Screens/Camera';
 import Location from './Screens/Location';
 import ProductPage from './Screens/ProductPage';
+import ScannedProductPage from './Screens/ScannedProductPage';
+import CheckoutPage from './Screens/CheckoutPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,11 +39,12 @@ function App() {
   return (
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator>
-        {/* <Stack.Screen
+        {/*<Stack.Screen
           name="MainPage"
           component={MainPage}
           options={{headerShown: false}}
         />
+        
         <Stack.Screen
           name="SignUpPage"
           component={SignUpPage}
@@ -61,10 +64,15 @@ function App() {
           name="ResetPassPage"
           component={ResetPassPage}
           options={{headerShown: false}}
+        />*/}
+        <Stack.Screen
+          name="StoresMenu"
+          component={StoresMenu}
+          options={{headerShown: false}}
         />
-       <Stack.Screen
-          name="Location"
-          component={Location}
+        <Stack.Screen
+          name="StorePage"
+          component={StorePage}
           options={{headerShown: false}}
         />
         <Stack.Screen
@@ -73,30 +81,15 @@ function App() {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="Home_noStorePage"
-          component={Home_noStorePage}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="StoresMenu"
-          component={StoresMenu}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Home_xStorePage"
-          component={Home_xStorePage}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
           name="ProductPage"
           component={ProductPage}
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="StorePage"
-          component={StorePage}
+          name="ScannedProductPage"
+          component={ScannedProductPage}
           options={{headerShown: false}}
-        />*/}
+        />
         <Stack.Screen
           name="PersonalMenu"
           component={PersonalMenu}
@@ -130,6 +123,11 @@ function App() {
         <Stack.Screen
           name="UserCart"
           component={UserCart}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="CheckoutPage"
+          component={CheckoutPage}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

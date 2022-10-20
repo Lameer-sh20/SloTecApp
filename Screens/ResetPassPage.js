@@ -14,6 +14,7 @@ import colors from '../assets/colors/Colors';
 //import {AsyncStorage} from '@react-native-async-storage/async-storage';
 
 // import components
+import {REACT_APP_address} from '@env';
 import SignHeader from '../Components/SignHeader';
 import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';

@@ -15,7 +15,6 @@ function AddCard() {
   //parameters
   const [holderName, setHolderName] = useState('');
   const [cardNumber, setCardNumber] = useState('');
-  const [cvv, setCvv] = useState('');
   const [expDate, setExpDate] = useState('');
   const [creditCards, setCreditCards] = useState([]);
 
@@ -47,8 +46,7 @@ function AddCard() {
     } else if (
       holderName.length === 0 ||
       cardNumber.length === 0 ||
-      expDate.length === 0 ||
-      cvv.length === 0
+      expDate.length === 0
     ) {
       Toast.show({
         type: 'error',
@@ -61,7 +59,6 @@ function AddCard() {
       const creditCard = {
         holderName: holderName,
         cardNumber: cardNumber,
-        CVV: cvv,
         expDate: expDate,
       };
       let credit = creditCards.find(
@@ -167,14 +164,7 @@ function AddCard() {
             onChangeText={text => setCardNumber(text)}
           />
         </View>
-        <View style={styles.inputsContainer}>
-          <Text style={styles.label}>CVV</Text>
-          <InputBox
-            placeholder="xxx"
-            value={cvv}
-            onChangeText={text => setCvv(text)}
-          />
-        </View>
+
         <View style={styles.inputsContainer}>
           <Text style={styles.label}>Expiry Date</Text>
           <InputBox

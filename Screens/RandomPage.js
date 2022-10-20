@@ -29,7 +29,7 @@ function RandomPage() {
 
   const submitData = () => {
     console.warn('in submitt data');
-    fetch('http://172.20.10.7:3000/product/FindProductByBarcode', {
+    fetch('http://192.168.8.111:3000/product/FindProductByBarcode', {
       method: 'POST', // or 'PUT'
       headers: {
         'Content-Type': 'application/json',
@@ -49,11 +49,13 @@ function RandomPage() {
   return (
     <View>
       <TouchableOpacity onPress={() => submitData()}>
-        <Text style={{fontSize: 20}}>click here</Text>
+        <Text style={{fontSize: 20, color: 'blue'}}>click here</Text>
       </TouchableOpacity>
-      <Text>in Random Page {typeof scannedProduct}</Text>
-      <Text>
-        product data is {scannedProduct.name}, {scannedProduct.barcodeNum}
+      <Text style={{fontSize: 20, color: 'black'}}>
+        in Random Page {typeof scannedProduct}
+      </Text>
+      <Text style={{fontSize: 20, color: 'black'}}>
+        product data is {scannedProduct.name}
       </Text>
     </View>
   );

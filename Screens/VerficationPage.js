@@ -1,39 +1,25 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  TextInput,
-  Alert,
-} from 'react-native';
-import colors from '../assets/colors/Colors';
+import {Text, View, StyleSheet, Alert} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // import components
+import colors from '../assets/colors/Colors';
+import {REACT_APP_address} from '@env';
 import SignHeader from '../Components/SignHeader';
 import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';
 
 function VerficationPage() {
   const navigation = useNavigation();
-  const route = useRoute();
-
-  //const {phone, name, password} = route.params;
-  //console.log(route.params.name);
-  // const phone = route.params.phone;
-  // const password = route.params.password;
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-
   const [OTP, setOtp] = useState('');
 
   useEffect(() => {
     getData();
-  });
+  }, []);
 
   const getData = async () => {
     try {
@@ -42,7 +28,7 @@ function VerficationPage() {
         setPhone(JSON.parse(value).phone);
         setName(JSON.parse(value).name);
         setPassword(JSON.parse(value).password);
-        console.warn(JSON.parse(value).phone);
+        console.warn(JSON.parse(value));
       }
     } catch (e) {
       // error reading value
@@ -68,8 +54,8 @@ function VerficationPage() {
   //   });
   // };
 
-  const submitData = () => {
-    fetch('http://192.168.8.111:3000/user/verfiyOTP', {
+  const submitData = async () => {
+    fetch('http:/' + REACT_APP_address + ':3000/user/verfiyOTP', {
       method: 'POST', // or 'PUT'
       headers: {
         'Content-Type': 'application/json',
@@ -78,9 +64,10 @@ function VerficationPage() {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data.status);
+        //console.log('res in otp', data);
+        //console.log(data.status);
         if (data.status) {
-          fetch('http://192.168.8.111:3000/user/signUp', {
+          fetch('http:/' + REACT_APP_address + ':3000/user/signUp', {
             method: 'POST', // or 'PUT'
             headers: {
               'Content-Type': 'application/json',
@@ -89,10 +76,20 @@ function VerficationPage() {
           })
             .then(response => response.json())
             .then(data => {
-              console.log(phone);
-              console.log(data);
+              //console.log('res in otp', data);
               //create local storage to store user info
-              navigation.navigate('Home_noStorePage');
+              try {
+                console.log('res in signup', JSON.stringify(data.user));
+                console.log('res in signup', JSON.stringify(data.token));
+                console.log('res in signup', typeof data);
+                console.log('res in signup', data);
+                //AsyncStorage.setItem('UserData', JSON.stringify(data.user));
+                //AsyncStorage.setItem('token', JSON.stringify(data.token));
+                console.warn('token and user data saved');
+              } catch (error) {
+                console.warn('token is saved');
+              }
+              navigation.navigate('StoresMenu');
             })
             .catch(error => {
               console.error('Error:', error);

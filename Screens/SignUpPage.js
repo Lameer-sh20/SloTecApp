@@ -4,38 +4,46 @@ import {useNavigation} from '@react-navigation/native';
 import colors from '../assets/colors/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import bcrypt from 'react-native-bcrypt';
 
 // import components
+import {REACT_APP_address} from '@env';
 import SignHeader from '../Components/SignHeader';
 import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';
 
 function SignUpPage() {
-  const navigation = useNavigation();
   //parameters
+  var salt = bcrypt.genSaltSync(10);
+  const navigation = useNavigation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
+  //console.warn('before', password);
+  //var hashedpass = bcrypt.hashSync(password, salt);
+  //console.warn('after', hashedpass);
+
   //functions
-  const setData = async () => {
-    if (name.length == 0 || phone.length == 0 || password.length == 0) {
-      //console.warn('fill the required info');
-    } else {
-      try {
-        const user = JSON.stringify({
-          name: name,
-          phone: phone,
-          password: password,
-        });
-        //await AsyncStorage.setItem('UserData', JSON.stringify(user));
-        await AsyncStorage.setItem('UserData', user);
-        //console.warn('account created successfully!');
-        //navigation.navigate('VerficationPage');
-      } catch (error) {
-        console.warn(error);
-      }
-    }
-  };
+  // const setData = async () => {
+  //   if (name.length === 0 || phone.length === 0 || password.length === 0) {
+  //     //console.warn('fill the required info');
+  //   } else {
+  //     try {
+  //       const user = JSON.stringify({
+  //         name: name,
+  //         phone: phone,
+  //         password: password,
+  //       });
+  //       //await AsyncStorage.setItem('UserData', JSON.stringify(user));
+  //       await AsyncStorage.setItem('UserData', user);
+  //       //console.warn('account created successfully!');
+  //       //navigation.navigate('VerficationPage');
+  //     } catch (error) {
+  //       console.warn(error);
+  //     }
+  //   }
+  // };
 
   // const passData = () => {
   //   if (name.length == 0 || phone.length == 0 || password.length == 0) {
@@ -53,7 +61,7 @@ function SignUpPage() {
   //   }
   // };
 
-  const submitData = () => {
+  const submitData = async () => {
     if (password.length <= 3 && password.length > 0) {
       Toast.show({
         type: 'error',
@@ -74,7 +82,19 @@ function SignUpPage() {
       });
       //console.warn('fill the required info');
     } else {
-      fetch('http://192.168.8.111:3000/user/getUserByPhone', {
+      //save in local storage
+      try {
+        const user = JSON.stringify({
+          name: name,
+          phone: phone,
+          password: bcrypt.hashSync(password, salt),
+        });
+        await AsyncStorage.setItem('UserData', user);
+      } catch (error) {
+        console.warn(error);
+      }
+      //start connecting with backend
+      fetch('http:/' + REACT_APP_address + ':3000/user/getUserByPhone', {
         method: 'POST', // or 'PUT'
         headers: {
           'Content-Type': 'application/json',
@@ -83,18 +103,18 @@ function SignUpPage() {
       })
         .then(response => response.json())
         .then(data => {
-          console.log(data.message);
+          //console.log(data.message);
           if (!data.status) {
-            fetch('http://192.168.8.111:3000/user/sendOTP', {
+            fetch('http:/' + REACT_APP_address + ':3000/user/sendOTP', {
               method: 'POST', // or 'PUT'
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({name, phone, password}),
+              body: JSON.stringify({phone}),
             })
               .then(response => response.json())
               .then(data => {
-                console.log(phone);
+                //console.log('respond is ', data);
                 console.log(data.message);
                 navigation.navigate('VerficationPage');
               })
@@ -156,7 +176,6 @@ function SignUpPage() {
         <LongButton
           text="Countinue"
           onPress={() => {
-            setData();
             submitData();
           }}
         />

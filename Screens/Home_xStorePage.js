@@ -5,21 +5,22 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  useWindowDimensions,
   FlatList,
   ScrollView,
 } from 'react-native';
-import colors from '../assets/colors/Colors';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import colors from '../assets/colors/Colors';
+import {REACT_APP_address} from '@env';
 import UserHeader from '../Components/UserHeader';
 
 function Home_xStorePage({navigation}) {
-  //const navigation = useNavigation();
-  //const route = useRoute();
   const [name, setName] = useState('');
   const [storeProducts, setStoreProducts] = useState([]);
+  const [storeID, setStoreID] = useState('');
+  const [storeName, setStoreName] = useState('');
+
   //const [productId, setproductId] = useState('');
 
   useEffect(() => {
@@ -28,23 +29,31 @@ function Home_xStorePage({navigation}) {
 
   const getData = async () => {
     try {
-      const value = await AsyncStorage.getItem('UserData');
       const storedata = await AsyncStorage.getItem('StoreData');
-      if (value !== null) {
+      const value = await AsyncStorage.getItem('UserData');
+      if (value !== null || storedata !== null) {
         //console.warn(JSON.parse(value).name);
-        setName(JSON.parse(value).name);
-      } else if (storedata !== null) {
-        //console.warn(JSON.parse(storedata).storeID);
-        //console.warn(JSON.parse(storedata).storeProducts);
+        //console.warn(JSON.parse(storedata));
+        //console.warn('store data are ', JSON.parse(storedata));
+        setStoreName(JSON.parse(storedata).storeName);
         setStoreProducts(JSON.parse(storedata).storeProducts);
+        setStoreID(JSON.parse(storedata).storeID);
+        setName(JSON.parse(value).name);
+      } else if (storedata == null || value == null) {
+        console.warn('store data is null');
       }
     } catch (e) {
-      console.warn(e);
+      console.error(e);
     }
   };
 
   const productsMenu = ({item}) => {
-    const handleOnPress = () => navigation.navigate('ProductPage', {item});
+    const handleOnPress = () => {
+      navigation.navigate('ProductPage', {product: item});
+      //const chosenProd = {product: item, storeid: storeID};
+      //AsyncStorage.setItem('chosenProduct', JSON.stringify(chosenProd));
+      //console.warn('to show is', chosenProd);
+    };
     return (
       <TouchableOpacity style={styles.product} onPress={handleOnPress}>
         {/**product image */}
@@ -52,7 +61,13 @@ function Home_xStorePage({navigation}) {
           <Image
             style={styles.productImage}
             resizeMode="contain"
-            source={{uri: item.uri}}
+            source={{
+              uri:
+                'http:/' +
+                REACT_APP_address +
+                ':3000//' +
+                item.image.replace(/\\/g, '//'),
+            }}
           />
         </View>
         {/**line */}
@@ -62,16 +77,16 @@ function Home_xStorePage({navigation}) {
           <Text style={styles.productName}>{item.name}</Text>
           <Text
             style={[
-              Number(item.saleprice) < Number(item.price)
+              Number(item.sellprice) < Number(item.price)
                 ? styles.oldPrice
-                : styles.salePrice,
+                : styles.sellPrice,
             ]}>
             SAR {item.price}
           </Text>
-          <Text style={styles.salePrice}>
-            {Number(item.saleprice) === Number(item.price)
+          <Text style={styles.sellPrice}>
+            {Number(item.sellPrice) === Number(item.price)
               ? ' '
-              : 'SAR ' + item.saleprice}
+              : 'SAR ' + item.sellPrice}
           </Text>
         </View>
       </TouchableOpacity>
@@ -80,12 +95,19 @@ function Home_xStorePage({navigation}) {
 
   return (
     <View style={styles.pageContainer}>
-      <UserHeader name={name}> </UserHeader>
+      <UserHeader name={name} storename={storeName} />
       <View style={styles.Container}>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Latest Offers</Text>
         </View>
         <View style={styles.menuContainer}>
+          {/* {storeProducts.map((item, i) => {
+            return (
+              <Text style={styles.productName}>
+                product name is {item.name}
+              </Text>
+            );
+          })} */}
           <FlatList
             data={storeProducts}
             keyExtractor={item => item.id}
@@ -102,7 +124,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   Container: {
-    backgroundColor: '#F4F4F8',
+    //backgroundColor: '#F4F4F8',
     alignItems: 'center',
   },
   textContainer: {
@@ -173,18 +195,18 @@ const styles = StyleSheet.create({
   defaultPrice: {
     fontFamily: 'Nunito-Regular',
     color: '#212429',
-    fontSize: 16,
+    fontSize: 15,
   },
   oldPrice: {
     fontFamily: 'Nunito-Regular',
     color: '#212429',
-    fontSize: 16,
+    fontSize: 15,
     textDecorationLine: 'line-through',
   },
-  salePrice: {
+  sellPrice: {
     fontFamily: 'Nunito-Bold',
     color: colors.blue,
-    fontSize: 16,
+    fontSize: 15,
   },
 });
 export default Home_xStorePage;

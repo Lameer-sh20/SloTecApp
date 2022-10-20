@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  FlatList,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,24 +17,43 @@ import Toast from 'react-native-toast-message';
 import colors from '../assets/colors/Colors';
 
 function ProductPage({navigation, route}) {
+  //params
   let [quantity, setQuantity] = useState(1);
   const [cartItem, setcartItem] = useState([]);
-  const {item} = route.params;
-  //console.log('params', item);
-  const itemInfo = [];
-  itemInfo.push(item);
+  const [similarProducts, setSimilarProducts] = useState([]);
 
-  let barcode = '';
-  try {
-    barcode = route.params.barcode;
-  } catch (e) {
-    console.log('no barcode', barcode);
-  }
+  let chosenProduct = route.params.product;
+  //let storeId = route.params.storeid;
 
   //functions
   useEffect(() => {
     getData();
-  });
+  }, [quantity, cartItem]);
+
+  useEffect(() => {
+    const findSimilar = () => {
+      fetch('http:/192.168.8.111:3000/product/FindSimilar', {
+        method: 'POST', // or 'PUT'
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          storeId: chosenProduct.storeId,
+          categoryId: chosenProduct.categoryId,
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          setSimilarProducts(data);
+          //console.log('similar products are ', data);
+        })
+        .catch(error => {
+          console.error('can not find similar:', error);
+        });
+    };
+    findSimilar();
+  }, [chosenProduct.storeId, chosenProduct.categoryId]);
+
   const increment = () => {
     const value = (quantity += 1);
     //console.log('increament', quantity);
@@ -153,6 +171,8 @@ function ProductPage({navigation, route}) {
   // };
 
   const addToCart1 = async data => {
+    //await AsyncStorage.getItem('CartData').clear();
+    //console.error('before add', data);
     let prod = cartItem.find(pro => pro.product.id === data.id);
     try {
       if (prod.product.id !== undefined) {
@@ -172,9 +192,13 @@ function ProductPage({navigation, route}) {
         quant: quantity,
       };
       cartItem.push(cartProduct);
-      //console.warn('add to cart', newcart);
+      //console.warn('add to cart', cartItem);
       AsyncStorage.setItem('CartData', JSON.stringify(cartItem));
-      console.warn('product saved!');
+      Toast.show({
+        text1: 'Product is Added to cart',
+        visibilityTime: 4000,
+      });
+      //console.warn('product saved!');
     }
   };
 
@@ -182,10 +206,12 @@ function ProductPage({navigation, route}) {
     try {
       //const value = await AsyncStorage.clear();
       const value = await AsyncStorage.getItem('CartData');
+      //const prod = await AsyncStorage.getItem('chosenProduct');
       if (value !== null) {
         setcartItem(JSON.parse(value));
         // const cartData = cartItem;
         //console.warn('got it', JSON.parse(value).product);
+        //console.warn('chosen is', JSON.parse(prod));
       } else {
         //console.warn('nothing', value);
       }
@@ -195,8 +221,7 @@ function ProductPage({navigation, route}) {
     //console.log('product is ', cartItem);
   };
   return (
-    <View style={styles.container}>
-      {/** arrow and cart button */}
+    <View style={{flex: 1}}>
       <View style={styles.topButtonsContainer}>
         <TouchableOpacity
           style={styles.arrowContainer}
@@ -213,41 +238,46 @@ function ProductPage({navigation, route}) {
           />
         </TouchableOpacity>
       </View>
-      {/** product */}
-      {/** product image */}
-      <ScrollView style={{backgroundColor: '#E7E7EB'}}>
+      <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
         <View style={styles.prodImageContainer}>
-          <Image style={{width: 64, height: 64}} source={{uri: item.uri}} />
+          <Image
+            style={{width: 200, height: 200}}
+            resizeMode="contain"
+            source={{
+              uri:
+                'http://192.168.8.111:3000//' +
+                chosenProduct.image.replace(/\\/g, '//'),
+            }}
+          />
           <Toast
             ref={ref => {
               Toast.setRef(ref);
             }}
           />
         </View>
-        {/** product info */}
         <View style={styles.productContainer}>
-          {/** product name & price */}
           <View style={styles.name_price}>
-            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.name}>{chosenProduct.name}</Text>
             <View style={styles.size_priceContainer}>
               <View style={styles.priceContainer}>
                 <Text
                   style={[
-                    Number(item.saleprice) < Number(item.price)
+                    Number(chosenProduct.sellPrice) <
+                    Number(chosenProduct.price)
                       ? styles.oldPrice
-                      : styles.salePrice,
+                      : styles.sellPrice,
                   ]}>
-                  SAR {item.price}
+                  SAR {chosenProduct.price}
                 </Text>
-                <Text style={styles.salePrice}>
-                  {Number(item.saleprice) === Number(item.price)
+                <Text style={styles.sellPrice}>
+                  {Number(chosenProduct.sellPrice) ===
+                  Number(chosenProduct.price)
                     ? ' '
-                    : 'SAR ' + item.saleprice}
+                    : 'SAR ' + chosenProduct.sellPrice}
                 </Text>
               </View>
             </View>
           </View>
-          {/** product counter & adding */}
           <View style={styles.quant_add}>
             <View style={styles.quantCounter}>
               <TouchableOpacity
@@ -263,7 +293,7 @@ function ProductPage({navigation, route}) {
               </TouchableOpacity>
             </View>
             <TouchableOpacity
-              onPress={() => addToCart1(item)}
+              onPress={() => addToCart1(chosenProduct)}
               style={styles.addToCartContainer}>
               <MaterialCommunityIcons
                 name="cart-plus"
@@ -272,22 +302,57 @@ function ProductPage({navigation, route}) {
               />
             </TouchableOpacity>
           </View>
-          {/** line */}
           <View style={styles.line} />
-          {/** product additional info */}
-          <View style={styles.infoText}>
-            <Text>{item.info}</Text>
+          <View>
+            <Text style={styles.infoText}>{chosenProduct.description}</Text>
           </View>
-          {/** line */}
-          <View style={styles.line} />
-          {/** recomended products */}
-          <TouchableOpacity onPress={() => getData()}>
-            <Text style={styles.similarText}>Similar Products</Text>
-          </TouchableOpacity>
-          <Text style={{fontSize: 96}}>
-            here should be the recomended products
-          </Text>
         </View>
+        <View style={styles.line} />
+
+        <Text style={styles.similarText}>Similar Products</Text>
+        <ScrollView horizontal={true}>
+          <View
+            style={{flex: 3, backgroundColor: 'white', flexDirection: 'row'}}>
+            {similarProducts.map((item, i) => {
+              return (
+                <TouchableOpacity>
+                  <View style={styles.similarProduct}>
+                    <View style={styles.similarImageContainer}>
+                      <Image
+                        style={styles.similarProductImage}
+                        resizeMode="contain"
+                        source={{
+                          uri:
+                            'http://192.168.8.111:3000//' +
+                            item.image.replace(/\\/g, '//'),
+                        }}
+                      />
+                    </View>
+                    {/**line */}
+                    <View style={{height: 1.2, backgroundColor: '#E7E7EB'}} />
+                    {/**info */}
+                    <View style={styles.similarInfoContainer}>
+                      <Text style={styles.similarProductName}>{item.name}</Text>
+                      <Text
+                        style={[
+                          Number(item.sellprice) < Number(item.price)
+                            ? styles.similarOldPrice
+                            : styles.similarSellPrice,
+                        ]}>
+                        SAR {item.price}
+                      </Text>
+                      <Text style={styles.similarSellPrice}>
+                        {Number(item.sellPrice) === Number(item.price)
+                          ? ' '
+                          : 'SAR ' + item.sellPrice}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
       </ScrollView>
     </View>
   );
@@ -296,14 +361,11 @@ function ProductPage({navigation, route}) {
 export default ProductPage;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   topButtonsContainer: {
-    //flex: 0.5,
-    width: '100%',
-    height: '8%',
+    flex: 0.1,
     //backgroundColor: 'red',
+    //backgroundColor: '#E7E7EB',
+    width: '100%',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -326,17 +388,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   prodImageContainer: {
+    flex: 3,
+    //backgroundColor: '#E7E7EB',
+    //backgroundColor: 'green',
     width: '100%',
     height: '20%',
-    backgroundColor: '#E7E7EB',
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 16,
   },
   productContainer: {
+    flex: 3,
     width: '100%',
-    height: '100%',
+    //height: '100%',
     backgroundColor: 'white',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
@@ -355,7 +420,7 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: 'Nunito-Bold',
     color: '#212429',
-    fontSize: 22,
+    fontSize: 20,
   },
   size_priceContainer: {
     paddingVertical: 10,
@@ -367,18 +432,13 @@ const styles = StyleSheet.create({
     color: '#212429',
     fontSize: 16,
   },
-  defaultPrice: {
-    fontFamily: 'Nunito-Regular',
-    color: '#212429',
-    fontSize: 16,
-  },
   oldPrice: {
     fontFamily: 'Nunito-Regular',
     color: '#212429',
     fontSize: 16,
     textDecorationLine: 'line-through',
   },
-  salePrice: {
+  sellPrice: {
     fontFamily: 'Nunito-Bold',
     color: colors.blue,
     fontSize: 16,
@@ -427,12 +487,64 @@ const styles = StyleSheet.create({
     padding: 16,
     fontFamily: 'Nunito-Regular',
     color: '#212429',
-    fontSize: 20,
+    fontSize: 15,
   },
   similarText: {
     padding: 16,
     fontFamily: 'Nunito-Bold',
     color: '#212429',
     fontSize: 20,
+  },
+  similarProductsContainer: {
+    backgroundColor: 'red',
+  },
+  similarProduct: {
+    backgroundColor: '#ffffff',
+    width: 150,
+    height: 190,
+    borderWidth: 1.2,
+    borderRadius: 15,
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
+    borderColor: '#E7E7EB',
+    //marginRight: 10,
+    //alignItems: 'center',
+  },
+  similarImageContainer: {
+    flex: 3,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    //backgroundColor: 'green',
+    borderRadius: 15,
+    width: '95%',
+    height: '68%',
+  },
+  similarProductImage: {
+    width: '90%',
+    height: '80%',
+    //backgroundColor: 'transparent',
+  },
+  similarInfoContainer: {
+    paddingLeft: 9,
+    paddingBottom: 5,
+  },
+  similarProductName: {
+    fontFamily: 'Nunito-Bold',
+    color: '#212429',
+    fontSize: 13,
+    paddingVertical: 3,
+  },
+  similarOldPrice: {
+    fontFamily: 'Nunito-Regular',
+    color: '#212429',
+    fontSize: 13,
+    textDecorationLine: 'line-through',
+  },
+  similarSellPrice: {
+    fontFamily: 'Nunito-Bold',
+    color: colors.blue,
+    fontSize: 13,
   },
 });
