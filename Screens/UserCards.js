@@ -11,7 +11,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
+//import componants
+import {REACT_APP_address} from '@env';
+import colors from '../assets/colors/Colors';
 import YellowHeader from '../Components/YellowHeader';
 import LongButton from '../Components/LongButton';
 
@@ -19,48 +23,98 @@ function UserCards() {
   const navigation = useNavigation();
   //parameters
   const [creditCards, setCreditCards] = useState([]);
-  //let [status, setStatus] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [token, setToken] = useState('');
 
   //functions
+  //get user id
   useEffect(() => {
-    getData();
-  });
-
-  const deleteCard = async i => {
-    //console.log('card is', i);
-    const cardData = creditCards;
-    if (cardData.length === 0) {
-      console.log('empty');
-    } else {
-      //setStatus(true);
-      let card = cardData[i].cardNumber;
-      //console.error('the card ', card);
-      //console.warn('before deleting', cardData);
-      let deleted = cardData.splice(i, 1);
+    const getData = async () => {
       try {
-        await AsyncStorage.setItem('CardsData', JSON.stringify(cardData));
-        //console.warn('update saved!');
-      } catch (error) {
-        //console.warn('update error,', error);
+        const value = await AsyncStorage.getItem('UserData');
+        if (value !== null) {
+          setUserId(JSON.parse(value).id);
+          //console.warn(value);
+        } else {
+          console.log('UserData is null');
+        }
+      } catch (e) {
+        console.error('no UserData in storage');
       }
-      //console.warn('after delete ', cardData);
-    }
-  };
+    };
+    getData();
+  }, []);
 
-  const getData = async () => {
-    try {
-      //console.warn('delete');
-      //const value = await AsyncStorage.clear();
-      const value = await AsyncStorage.getItem('CardsData');
-      if (value !== null) {
-        //console.warn('saved cards', value);
-        setCreditCards(JSON.parse(value));
-      } else {
-        //console.warn('no saved cards', value);
+  //get user Token(user is signedup/in), other wise is null
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const value = await AsyncStorage.getItem('token');
+        if (value !== null) {
+          setToken(JSON.parse(value));
+          console.log('token is not null');
+        } else {
+          console.warn('token is null');
+        }
+      } catch (e) {
+        console.error('error', e);
       }
-    } catch (e) {
-      // error reading value
-    }
+    };
+    getToken();
+  }, []);
+
+  //get user cards from DB
+  useEffect(() => {
+    const getCards = async () => {
+      fetch('http:/' + REACT_APP_address + ':3000/card/getUserCards', {
+        method: 'POST', // or 'PUT'
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({userId}),
+      })
+        .then(response => response.json())
+        .then(data => {
+          //console.log(data);
+          if (data.cards.length !== 0) {
+            setCreditCards(JSON.parse(JSON.stringify(data.cards)));
+          } else {
+            console.log('user has no cards');
+          }
+        })
+        .catch(error => {
+          //console.error('Error: ', error);
+        });
+    };
+    getCards();
+  }, [userId, token, creditCards]);
+
+  //delete card from DB
+  const deleteCard = async item => {
+    //console.log('delete', item);
+    let id = item.id;
+    //console.log('delete number', id);
+    fetch('http:/' + REACT_APP_address + ':3000/card/deleteCard', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({id}),
+    })
+      .then(response => response.json())
+      .then(data => {
+        //console.log(data);
+        Toast.show({
+          type: 'success',
+          text1: data.message,
+          visibilityTime: 4000,
+        });
+      })
+      .catch(error => {
+        console.error('Error: ', error);
+      });
   };
 
   return (
@@ -68,7 +122,7 @@ function UserCards() {
       {/*header*/}
       <YellowHeader
         text="Credit Cards"
-        onPress={() => navigation.navigate('PersonalMenu')}
+        onPress={() => navigation.navigate('StorePage')}
       />
       <View
         style={{
@@ -76,7 +130,9 @@ function UserCards() {
           paddingTop: 9,
           //backgroundColor: '#F4F4F8',
         }}>
+        {/*reference to show toast message*/}
         <ScrollView>
+          {/*show if user has no credit cards*/}
           {creditCards.length === 0 ? (
             <View style={styles.warningContainer}>
               <MaterialCommunityIcons
@@ -87,23 +143,28 @@ function UserCards() {
               <Text style={styles.text}>You do not have any credit cards</Text>
             </View>
           ) : (
+            //{/*show if user has credit cards*/}
             creditCards.map((item, i) => {
               return (
-                <View style={styles.listContainer}>
-                  <View style={styles.productContainer}>
+                <View key={item.id} style={styles.listContainer}>
+                  <Toast
+                    ref={ref => {
+                      Toast.setRef(ref);
+                    }}
+                  />
+                  <View style={styles.cardContainer}>
                     <View style={styles.name__number_dataContainer}>
-                      <Text style={styles.cardText}>{item.holderName}</Text>
+                      <Text style={styles.cardText}>{item.cardHolderName}</Text>
                       <Text style={styles.cardText}>
                         ************
-                        {JSON.stringify(item.cardNumber).substring(12, 16)}
+                        {JSON.stringify(item.cardNum).substring(13, 17)}
                       </Text>
                       <Text style={styles.cardText}>
-                        {item.expDate.substring(0, 2)}/
-                        {item.expDate.substring(2, 4)}
+                        {JSON.stringify(item.expiresDate).substring(1, 8)}
                       </Text>
                     </View>
-                    <TouchableOpacity onPress={() => deleteCard(i)}>
-                      <AntDesign name="delete" size={28} color="#E75555" />
+                    <TouchableOpacity onPress={() => deleteCard(item)}>
+                      <AntDesign name="delete" size={22} color="#E75555" />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -121,13 +182,6 @@ function UserCards() {
     </View>
   );
 }
-{
-  /* <Text>card is {typeof creditCards}</Text>
-      <Text>card holder name is {creditCards.holderName}</Text>
-      {creditCards.map(card => {
-          return <Text> card is {card.holderName + card.cardNumber}</Text>;
-        })} */
-}
 
 const styles = StyleSheet.create({
   warningContainer: {
@@ -139,7 +193,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.default,
     fontSize: 16,
   },
   buttonContainer: {
@@ -149,14 +203,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingBottom: 9,
   },
-  productContainer: {
+  cardContainer: {
     backgroundColor: '#F4F4F8',
     paddingRight: 12,
     paddingLeft: 12,
     borderRadius: 10,
     width: '100%',
-    borderColor: '#E7E7EB',
-    borderWidth: 1.2,
+    borderColor: colors.borderColor,
+    borderWidth: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
@@ -165,17 +219,31 @@ const styles = StyleSheet.create({
     marginTop: 9,
     marginBottom: 9,
   },
-  Container: {
-    marginTop: 90,
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    //justifyContent: 'center',
-  },
   cardText: {
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.default,
     fontSize: 16,
   },
 });
 export default UserCards;
+
+// const deleteCard = async item => {
+//   console.log('card is', i);
+//   const cardData = creditCards;
+//   if (cardData.length === 0) {
+//     console.log('empty');
+//   } else {
+//     //setStatus(true);
+//     let card = cardData[i].cardNumber;
+//     //console.error('the card ', card);
+//     //console.warn('before deleting', cardData);
+//     let deleted = cardData.splice(i, 1);
+//     try {
+//       await AsyncStorage.setItem('CardsData', JSON.stringify(cardData));
+//       //console.warn('update saved!');
+//     } catch (error) {
+//       //console.warn('update error,', error);
+//     }
+//     //console.warn('after delete ', cardData);
+//   }
+// };

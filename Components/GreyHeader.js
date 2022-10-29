@@ -1,22 +1,14 @@
 import React from 'react';
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useNavigation} from '@react-navigation/native';
+import {Text, View, StyleSheet} from 'react-native';
 
 import colors from '../assets/colors/Colors';
 
-const SignHeader = ({text, onPress}) => {
-  //params
-  const navigation = useNavigation();
-
+//same as signHeader but without back button
+const GreyHeader = ({text}) => {
   return (
     <View style={styles.header}>
       {/*back icon container */}
-      <View style={styles.leftContainer}>
-        <TouchableOpacity onPress={onPress}>
-          <AntDesign name="left" size={30} color="#212429" />
-        </TouchableOpacity>
-      </View>
+      <View style={styles.leftContainer} />
       {/*label */}
       <Text style={styles.text}>{text}</Text>
       {/*extra container */}
@@ -25,7 +17,7 @@ const SignHeader = ({text, onPress}) => {
   );
 };
 
-export default SignHeader;
+export default GreyHeader;
 
 const styles = StyleSheet.create({
   header: {
@@ -51,7 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    paddingLeft: 16,
   },
   rightContainer: {
     flex: 1,

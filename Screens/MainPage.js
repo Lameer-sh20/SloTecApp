@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,48 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import colors from '../assets/colors/Colors';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+//import componants
+import colors from '../assets/colors/Colors';
 
 function MainPage() {
+  //params
   const navigation = useNavigation();
+  const [token, setToken] = useState('');
+
+  //functions
+  //check if we have token in storage
+  const checkToken = async () => {
+    try {
+      const value = await AsyncStorage.getItem('token');
+      //token exists => user must sign up/in
+      if (value !== null) {
+        setToken(JSON.parse(value));
+        console.log(
+          'token exists, signup/in then sign out to remove token',
+          token,
+        );
+        //token doesn't exists => user can skip
+      } else if (value === null) {
+        console.log('token is null');
+        try {
+          const user = JSON.stringify({
+            name: 'Guest',
+          });
+          await AsyncStorage.setItem('UserData', user);
+          await AsyncStorage.setItem('token', JSON.stringify(null));
+          console.log('Temp data is saved');
+          navigation.navigate('StoresMenu');
+        } catch (er) {
+          console.error('error setting temp user data', er);
+        }
+      }
+    } catch (e) {
+      console.log('No token in Storage ', e);
+    }
+  };
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -24,7 +61,9 @@ function MainPage() {
           onPress={() => navigation.navigate('SignUpPage')}>
           <Text style={styles.leftText}>SignUp</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.rightButton}>
+        <TouchableOpacity
+          style={styles.rightButton}
+          onPress={() => checkToken()}>
           <Text style={styles.rightText}>Skip</Text>
         </TouchableOpacity>
       </View>
@@ -44,33 +83,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   leftButton: {
-    backgroundColor: colors.mainYellow,
+    backgroundColor: colors.darkYellow,
     width: '45%',
     height: '70%',
     borderRadius: 10,
-    borderColor: colors.mainYellow,
+    borderColor: colors.darkYellow,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   leftText: {
     fontFamily: 'Nunito-Bold',
-    color: '#FFFFFF',
+    color: 'white',
     fontSize: 20,
   },
   rightButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCFDFF',
     width: '45%',
     height: '70%',
     borderRadius: 10,
-    borderColor: colors.mainYellow,
+    borderColor: colors.darkYellow,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rightText: {
     fontFamily: 'Nunito-Bold',
-    color: colors.mainYellow,
+    color: colors.darkYellow,
     fontSize: 20,
   },
   mainimage: {

@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View, StyleSheet, Alert} from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {Text, View, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 // import components
 import colors from '../assets/colors/Colors';
@@ -11,50 +12,36 @@ import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';
 
 function VerficationPage() {
+  //params
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [OTP, setOtp] = useState('');
 
+  //functions
+  //calls getdata function, to get user data from storage
   useEffect(() => {
     getData();
   }, []);
 
   const getData = async () => {
     try {
-      const value = await AsyncStorage.getItem('UserData');
+      const value = await AsyncStorage.getItem('Usertemp');
       if (value !== null) {
         setPhone(JSON.parse(value).phone);
         setName(JSON.parse(value).name);
         setPassword(JSON.parse(value).password);
-        console.warn(JSON.parse(value));
+        console.log(JSON.parse(value));
       }
     } catch (e) {
-      // error reading value
+      console.warn('error', e);
     }
   };
-  // const getData = async () => {
-  //   try {
-  //     const value = await AsyncStorage.getItem('UserData');
-  //     if (value !== null) {
-  //       console.warn(JSON.parse(value));
-  //     }
-  //   } catch (e) {
-  //     // error reading value
-  //   }
-  // };
 
-  // const passData = () => {
-  //   navigation.navigate('VerficationPage', {
-  //     name: name,
-  //     phone: phone,
-  //     password: password,
-  //     otp: OTP,
-  //   });
-  // };
-
+  //when user clicks on continue
   const submitData = async () => {
+    //send otp entered by user to validate number
     fetch('http:/' + REACT_APP_address + ':3000/user/verfiyOTP', {
       method: 'POST', // or 'PUT'
       headers: {
@@ -65,7 +52,7 @@ function VerficationPage() {
       .then(response => response.json())
       .then(data => {
         //console.log('res in otp', data);
-        //console.log(data.status);
+        //it entered otp is true, then signup the user with the data from storage
         if (data.status) {
           fetch('http:/' + REACT_APP_address + ':3000/user/signUp', {
             method: 'POST', // or 'PUT'
@@ -76,27 +63,34 @@ function VerficationPage() {
           })
             .then(response => response.json())
             .then(data => {
-              //console.log('res in otp', data);
               //create local storage to store user info
               try {
-                console.log('res in signup', JSON.stringify(data.user));
-                console.log('res in signup', JSON.stringify(data.token));
-                console.log('res in signup', typeof data);
-                console.log('res in signup', data);
-                //AsyncStorage.setItem('UserData', JSON.stringify(data.user));
-                //AsyncStorage.setItem('token', JSON.stringify(data.token));
+                const user = JSON.stringify({
+                  id: data.user.id,
+                  name: data.user.name,
+                  phone: data.user.phone,
+                });
+                //console.log('res in verfication', JSON.stringify(data.user));
+                //console.log('res in verfication', JSON.stringify(data.token));
+                AsyncStorage.setItem('UserData', user);
+                AsyncStorage.setItem('token', JSON.stringify(data.token));
                 console.warn('token and user data saved');
               } catch (error) {
-                console.warn('token is saved');
+                console.warn('token is not saved');
               }
               navigation.navigate('StoresMenu');
             })
             .catch(error => {
               console.error('Error:', error);
             });
-        } else {
-          Alert.alert('wrong otp');
-          console.warn('phone is', phone);
+        }
+        //it entered otp is wrong, then show message
+        else {
+          Toast.show({
+            type: 'error',
+            text1: 'Wrong OTP',
+            visibilityTime: 4000,
+          });
         }
       })
       .catch(error => {
@@ -106,11 +100,18 @@ function VerficationPage() {
 
   return (
     <View style={styles.pageContainer}>
+      {/**header */}
       <SignHeader
         text="Verfication"
         onPress={() => navigation.navigate('SignUpPage')}
       />
+      {/**inputs section */}
       <View style={styles.textContainer}>
+        <Toast
+          ref={ref => {
+            Toast.setRef(ref);
+          }}
+        />
         <Text style={styles.text}>
           A confirmation code has been sent to your{'\n'} Please enter it below
         </Text>
@@ -122,6 +123,7 @@ function VerficationPage() {
           onChangeText={text => setOtp(text)}
         />
       </View>
+      {/**continue button */}
       <View style={styles.buttonContainer}>
         <LongButton text="Countinue" onPress={submitData} />
       </View>
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.default,
     fontSize: 16,
   },
   inputContainer: {
@@ -156,3 +158,23 @@ const styles = StyleSheet.create({
   },
 });
 export default VerficationPage;
+
+// const getData = async () => {
+//   try {
+//     const value = await AsyncStorage.getItem('UserData');
+//     if (value !== null) {
+//       console.warn(JSON.parse(value));
+//     }
+//   } catch (e) {
+//     // error reading value
+//   }
+// };
+
+// const passData = () => {
+//   navigation.navigate('VerficationPage', {
+//     name: name,
+//     phone: phone,
+//     password: password,
+//     otp: OTP,
+//   });
+// };

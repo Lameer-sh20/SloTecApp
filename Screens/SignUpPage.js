@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import colors from '../assets/colors/Colors';
@@ -14,53 +14,15 @@ import LongButton from '../Components/LongButton';
 
 function SignUpPage() {
   //parameters
-  var salt = bcrypt.genSaltSync(10);
+  var salt = bcrypt.genSaltSync(10); // for hashing password
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
-  //console.warn('before', password);
-  //var hashedpass = bcrypt.hashSync(password, salt);
-  //console.warn('after', hashedpass);
-
   //functions
-  // const setData = async () => {
-  //   if (name.length === 0 || phone.length === 0 || password.length === 0) {
-  //     //console.warn('fill the required info');
-  //   } else {
-  //     try {
-  //       const user = JSON.stringify({
-  //         name: name,
-  //         phone: phone,
-  //         password: password,
-  //       });
-  //       //await AsyncStorage.setItem('UserData', JSON.stringify(user));
-  //       await AsyncStorage.setItem('UserData', user);
-  //       //console.warn('account created successfully!');
-  //       //navigation.navigate('VerficationPage');
-  //     } catch (error) {
-  //       console.warn(error);
-  //     }
-  //   }
-  // };
 
-  // const passData = () => {
-  //   if (name.length == 0 || phone.length == 0 || password.length == 0) {
-  //     Alert.alert('Warning!', 'Please fill the required info');
-  //   } else {
-  //     try {
-  //       navigation.navigate('OtpPage', {
-  //         name: name,
-  //         phone: phone,
-  //         password: password,
-  //       });
-  //     } catch (error) {
-  //       console.warn(error);
-  //     }
-  //   }
-  // };
-
+  //when user clicks on continue
   const submitData = async () => {
     if (password.length <= 3 && password.length > 0) {
       Toast.show({
@@ -76,20 +38,18 @@ function SignUpPage() {
     ) {
       Toast.show({
         type: 'error',
-        text1: 'Alert!',
-        text2: 'Please fill the required information',
+        text1: 'Please fill the required information',
         visibilityTime: 4000,
       });
-      //console.warn('fill the required info');
     } else {
-      //save in local storage
+      //all conditions are valid, save in local storage and connect to backend
       try {
         const user = JSON.stringify({
           name: name,
           phone: phone,
           password: bcrypt.hashSync(password, salt),
         });
-        await AsyncStorage.setItem('UserData', user);
+        await AsyncStorage.setItem('Usertemp', user);
       } catch (error) {
         console.warn(error);
       }
@@ -103,7 +63,8 @@ function SignUpPage() {
       })
         .then(response => response.json())
         .then(data => {
-          //console.log(data.message);
+          console.log(data.message);
+          //if user phone not stored for any acoount, send an otp
           if (!data.status) {
             fetch('http:/' + REACT_APP_address + ':3000/user/sendOTP', {
               method: 'POST', // or 'PUT'
@@ -114,21 +75,21 @@ function SignUpPage() {
             })
               .then(response => response.json())
               .then(data => {
-                //console.log('respond is ', data);
-                console.log(data.message);
+                console.log(data);
                 navigation.navigate('VerficationPage');
               })
               .catch(error => {
                 console.error('Error:', error);
               });
-          } else {
+          }
+          //if user phone stored for an acoount, show error, user must sign in
+          else {
             Toast.show({
               type: 'error',
               text1: 'Alert!',
               text2: data.message,
               visibilityTime: 5000,
             });
-            //Alert.alert('Make login');
           }
         })
         .catch(error => {
@@ -140,10 +101,12 @@ function SignUpPage() {
   // actual page flow
   return (
     <View style={styles.pageContainer}>
+      {/**header */}
       <SignHeader
         text="Sign Up"
         onPress={() => navigation.navigate('MainPage')}
       />
+      {/**inputs section*/}
       <View style={styles.textContainer}>
         <Text style={styles.text}>
           Please complete the following information
@@ -172,6 +135,7 @@ function SignUpPage() {
           secureTextEntry={true}
         />
       </View>
+      {/**continue button*/}
       <View style={styles.buttonContainer}>
         <LongButton
           text="Countinue"
@@ -180,6 +144,7 @@ function SignUpPage() {
           }}
         />
       </View>
+      {/**asking if user has account*/}
       <View>
         <View style={styles.questionContainer}>
           <Text style={styles.questionstext}>Already have an account? </Text>
@@ -209,7 +174,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.default,
     fontSize: 16,
   },
   inputContainer: {
@@ -226,7 +191,7 @@ const styles = StyleSheet.create({
   },
   questionstext: {
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.default,
     fontSize: 13,
   },
   clickableContainer: {
@@ -239,16 +204,46 @@ const styles = StyleSheet.create({
     color: colors.blue,
     fontSize: 13,
   },
-  word: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignText: 'center',
-  },
-  wordstyle: {
-    marginVertical: 5,
-    fontFamily: 'Nunito-Regular',
-    color: '#212429',
-    fontSize: 13,
-  },
 });
 export default SignUpPage;
+
+//console.warn('before', password);
+//var hashedpass = bcrypt.hashSync(password, salt);
+//console.warn('after', hashedpass);
+
+//functions
+// const setData = async () => {
+//   if (name.length === 0 || phone.length === 0 || password.length === 0) {
+//     //console.warn('fill the required info');
+//   } else {
+//     try {
+//       const user = JSON.stringify({
+//         name: name,
+//         phone: phone,
+//         password: password,
+//       });
+//       //await AsyncStorage.setItem('UserData', JSON.stringify(user));
+//       await AsyncStorage.setItem('UserData', user);
+//       //console.warn('account created successfully!');
+//       //navigation.navigate('VerficationPage');
+//     } catch (error) {
+//       console.warn(error);
+//     }
+//   }
+// };
+
+// const passData = () => {
+//   if (name.length == 0 || phone.length == 0 || password.length == 0) {
+//     Alert.alert('Warning!', 'Please fill the required info');
+//   } else {
+//     try {
+//       navigation.navigate('OtpPage', {
+//         name: name,
+//         phone: phone,
+//         password: password,
+//       });
+//     } catch (error) {
+//       console.warn(error);
+//     }
+//   }
+// };

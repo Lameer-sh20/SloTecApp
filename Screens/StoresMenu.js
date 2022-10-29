@@ -8,19 +8,24 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import colors from '../assets/colors/Colors';
 import {useNavigation} from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+//import componants
 import {REACT_APP_address} from '@env';
-import SignHeader from '../Components/SignHeader';
+import colors from '../assets/colors/Colors';
+import GreyHeader from '../Components/GreyHeader';
 
 function StoresMenu() {
+  //params
   const navigation = useNavigation();
   const [position, setPosition] = useState('');
   const [storeList, setStoreList] = useState([]);
 
+  //functions
+
+  //get user's current position
   useEffect(() => {
     const getCurrentPosition = () => {
       Geolocation.getCurrentPosition(
@@ -60,12 +65,13 @@ function StoresMenu() {
             });
         },
         error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
-        {timeout: 2000, maximumAge: 3600000},
+        {enableHighAccuracy: true, timeout: 10000, maximumAge: 3600000},
       );
     };
     getCurrentPosition();
-  }, [position]);
+  }, []);
 
+  //get nearest stores list
   useEffect(() => {
     const getStores = () => {
       Geolocation.getCurrentPosition(pos => {
@@ -82,8 +88,8 @@ function StoresMenu() {
           .then(response => response.json())
           .then(data => {
             const store = JSON.parse(JSON.stringify(data));
-            console.log('store is', store.storeList);
             setStoreList(store.storeList);
+            //console.log('store is', store.storeList);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -91,12 +97,13 @@ function StoresMenu() {
       });
     };
     getStores();
-  }, [position]);
+  }, []);
 
+  //when user clicks on any store from the stores list, we get the store's product
   const userChoice = async (id, storename) => {
     //console.error('storeid ', id);
     //console.error('storename ', storename);
-
+    //connect to backend to get products of the store the user choose
     fetch('http:/' + REACT_APP_address + ':3000/product/StoreProducts', {
       method: 'POST', // or 'PUT'
       headers: {
@@ -111,10 +118,11 @@ function StoresMenu() {
           storeName: storename,
           storeProducts: data.Products,
         };
-        console.log('products are ', StoreData);
+        //console.log('products are ', data);
+        //save products in storage and go to storepage
         try {
           AsyncStorage.setItem('StoreData', JSON.stringify(StoreData));
-          console.warn('storedata are saved!');
+          //console.warn('storedata are saved!');
         } catch (error) {
           console.warn('storedata error,', error);
         }
@@ -127,22 +135,23 @@ function StoresMenu() {
 
   return (
     <View>
-      <SignHeader
-        text="Stores"
-        onPress={() => navigation.navigate('Home_noStorePage')}
-      />
+      {/**header */}
+      <GreyHeader text="Stores" />
+      {/**user's current location */}
       <ScrollView>
         <View>
           <Text style={styles.text}>Your location address is</Text>
           <Text style={styles.locationText}>{position}</Text>
           <Text style={styles.text}>Choose the store you are shopping at</Text>
         </View>
+        {/**nearest stores list */}
         <View style={styles.itemsContainer}>
           {storeList.map((item, i) => {
             return (
               <TouchableOpacity
+                key={item.id}
                 style={styles.storeOption}
-                onPress={() => userChoice(JSON.stringify(1), item.name)}>
+                onPress={() => userChoice(item.id, item.name)}>
                 <View style={styles.itemInfo}>
                   <Image
                     style={{width: 35, height: 35, marginRight: 9}}
@@ -174,14 +183,14 @@ const styles = StyleSheet.create({
   text: {
     margin: 10,
     fontFamily: 'Nunito-Bold',
-    color: '#212429',
+    color: colors.default,
     fontSize: 16,
   },
   locationText: {
     marginLeft: 10,
     marginRight: 10,
-    fontFamily: 'Nunito-SemiBold',
-    color: '#212429',
+    fontFamily: 'Nunito-Regular',
+    color: colors.default,
     fontSize: 16,
   },
   itemsContainer: {
@@ -193,11 +202,10 @@ const styles = StyleSheet.create({
     height: 65,
     width: '100%',
     backgroundColor: '#F5F5F9',
-    borderColor: '#E7E7EB',
+    borderColor: colors.borderColor,
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
-    //elevation: 4, // is it a shadow ??
     justifyContent: 'center',
     marginVertical: 5,
   },
@@ -208,8 +216,8 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontFamily: 'Nunito-Regular',
-    fontSize: 17,
-    color: '#212429',
+    fontSize: 16,
+    color: colors.default,
     paddingLeft: 15,
   },
 });
@@ -248,70 +256,3 @@ export default StoresMenu;
   <Text style={styles.name}>{item.name}</Text>
 </View>; */
 }
-
-//const [storeId, setStoreId] = useState('');
-// const products = [
-//   {
-//     id: '1',
-//     name: 'apple',
-//     price: '10',
-//     saleprice: '9',
-//     info: 'it is good',
-
-//     uri: 'https://purepng.com/public/uploads/large/purepng.com-fresh-applefoodsweettastyhealthyfruitappleleaf-981524677946vfurf.png',
-//   },
-//   {
-//     id: '2',
-//     name: 'orange',
-//     price: '15',
-//     saleprice: '15',
-//     info: 'it is good',
-//     uri: 'https://purepng.com/public/uploads/large/purepng.com-orangeorangefruitfoodtastydeliciousorangecolor-331522582483ulajt.png',
-//   },
-//   {
-//     id: '3',
-//     name: 'carrot',
-//     price: '20',
-//     saleprice: '19.5',
-//     info: 'it is good',
-
-//     uri: 'https://i.pinimg.com/originals/bb/b7/f3/bbb7f3bb0fe59ee186ea8b5b579c84be.png',
-//   },
-//   {
-//     id: '4',
-//     name: 'melon',
-//     price: '25',
-//     saleprice: '25',
-
-//     info: 'it is good',
-
-//     uri: 'https://image.similarpng.com/very-thumbnail/2021/01/Watermelon-fruit-is-sweet-on-transparent-background-PNG.png',
-//   },
-//   {
-//     id: '5',
-//     name: 'mango',
-//     price: '30',
-//     saleprice: '25',
-
-//     info: 'it is good',
-
-//     uri: 'https://assets.stickpng.com/images/580b57fcd9996e24bc43c15d.png',
-//   },
-//   {
-//     id: '6',
-//     name: 'kiwi',
-//     price: '35',
-//     saleprice: '35',
-//     info: 'it is good',
-//     uri: 'https://toppng.com/uploads/preview/kiwi-fruit-11526058601mhbdehacwr.png',
-//   },
-//   {
-//     id: '7',
-//     name: 'blueberry',
-//     price: '40',
-//     saleprice: '40',
-
-//     info: 'it is good',
-//     uri: 'https://www.pngimages.in/uploads/png-thumb/Blueberries_images_png_HD_new.png',
-//   },
-// ];

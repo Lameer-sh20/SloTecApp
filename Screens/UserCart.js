@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -20,16 +19,53 @@ import SignHeader from '../Components/SignHeader';
 import LongButton from '../Components/LongButton';
 
 function UserCart() {
-  const navigation = useNavigation();
   //parameters
+  const navigation = useNavigation();
+  const [token, setToken] = useState('');
+
   const [cartProducts, setCartProducts] = useState([]);
   let [cartTotal, setcartTotal] = useState();
 
   //functions
+
+  //get user Token(user is signedup/in), other wise is null
   useEffect(() => {
+    const getToken = async () => {
+      try {
+        const value = await AsyncStorage.getItem('token');
+        if (value !== null) {
+          setToken(JSON.parse(value));
+          console.log('token is not null');
+        } else {
+          console.log('token is null');
+        }
+      } catch (e) {
+        console.error('error', e);
+      }
+    };
+    getToken();
+  }, []);
+
+  //get products user added it to cart from storage
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const value = await AsyncStorage.getItem('CartData');
+        if (value !== null) {
+          //console.warn('cart is not empty', cartProducts.length);
+          setCartProducts(JSON.parse(value));
+          //console.warn('cart is not empty', JSON.parse(value));
+        } else {
+          //console.warn('cart is empty', value);
+        }
+      } catch (e) {
+        // error reading value
+      }
+    };
     getData();
   }, [cartProducts]);
 
+  //calculate total price for cart
   useEffect(() => {
     const totalCartPrice = async () => {
       // if type == false prod doesn't have sale price
@@ -57,24 +93,8 @@ function UserCart() {
     totalCartPrice();
   }, [cartProducts]);
 
-  const getData = async () => {
-    try {
-      const value = await AsyncStorage.getItem('CartData');
-      if (value !== null) {
-        //console.warn('cart is not empty', cartProducts.length);
-        setCartProducts(JSON.parse(value));
-        //console.warn('cart is not empty', JSON.parse(value));
-      } else {
-        //console.warn('cart is empty', value);
-      }
-    } catch (e) {
-      // error reading value
-    }
-  };
-
+  //changing quantity for each item in cart
   const ChangeQuan = async (i, type) => {
-    //const value = await AsyncStorage.getItem('CartData');
-    //setCartProducts(JSON.parse(value));
     //console.log('id is', id);
     const cartData = cartProducts;
     //let prod = cartProducts.find(data => data.product.id === id);
@@ -122,24 +142,56 @@ function UserCart() {
     }
   };
 
+  //when user clicks checkout 1. check is we have token(user is signedup/in) >> 2.data is saved in storage
   const setData = async () => {
-    const purchase = {
-      products: cartProducts,
-      total: cartTotal,
-    };
-    //console.warn('purchase data products', purchase.products);
-
-    try {
-      AsyncStorage.setItem('PurchaseData', JSON.stringify(purchase));
-      console.warn('purchase data saved');
-      navigation.navigate('CheckoutPage');
-    } catch (e) {
-      console.error('purchase data not saved');
+    if (token === null) {
+      try {
+        Alert.alert('Warning', 'Please SignUp/In to checkout ', [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => {
+              const purchase = {
+                products: cartProducts,
+                total: cartTotal,
+              };
+              try {
+                AsyncStorage.setItem('PurchaseData', JSON.stringify(purchase));
+                console.warn('purchase data saved');
+                navigation.navigate('CheckoutPage');
+              } catch (e) {
+                console.error('purchase data not saved');
+              }
+              navigation.navigate('SignUpPage');
+            },
+          },
+        ]);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      console.log('user is autherized');
+      const purchase = {
+        products: cartProducts,
+        total: cartTotal,
+      };
+      try {
+        AsyncStorage.setItem('PurchaseData', JSON.stringify(purchase));
+        //console.warn('purchase data saved');
+        navigation.navigate('CheckoutPage');
+      } catch (e) {
+        console.error('purchase data not saved');
+      }
     }
   };
 
   return (
     <View style={{flex: 1}}>
+      {/**header */}
       <SignHeader
         text="Cart"
         onPress={() => navigation.navigate('StorePage')}
@@ -150,6 +202,7 @@ function UserCart() {
           paddingTop: 9,
           backgroundColor: '#F4F4F8',
         }}>
+        {/**if user has no products in cart show message, if there is products show them*/}
         <ScrollView>
           {cartProducts.length === 0 ? (
             <View style={styles.warningContainer}>
@@ -163,7 +216,7 @@ function UserCart() {
           ) : (
             cartProducts.map((item, i) => {
               return (
-                <View style={styles.listContainer}>
+                <View key={item.product.id} style={styles.listContainer}>
                   <View style={styles.productContainer}>
                     <View style={styles.name__size_priceContainer}>
                       <View style={styles.name_sizeContainer}>
@@ -230,6 +283,7 @@ function UserCart() {
           )}
         </ScrollView>
       </View>
+      {/**checkout button, total cart*/}
       <View style={styles.checkoutContainer}>
         <View style={styles.totalCartContainer}>
           <Text style={styles.totalText}>Total</Text>
@@ -244,21 +298,17 @@ function UserCart() {
 export default UserCart;
 
 const styles = StyleSheet.create({
-  pagecontainer: {
-    flex: 1,
-    //justifyContent: 'center',
+  text: {
+    marginTop: 5,
+    fontFamily: 'Nunito-Regular',
+    color: '#212429',
+    fontSize: 16,
   },
   warningContainer: {
     marginTop: 150,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  text: {
-    marginTop: 5,
-    fontFamily: 'Nunito-Regular',
-    color: '#212429',
-    fontSize: 16,
   },
   listContainer: {
     paddingHorizontal: 9,

@@ -1,22 +1,24 @@
 import React from 'react';
 import {Text, View, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import colors from '../assets/colors/Colors';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
 
+//import componants
+import colors from '../assets/colors/Colors';
+
 function YellowHeader({text, onPress}) {
+  //params
   const navigation = useNavigation();
+
   return (
     <View style={styles.header}>
       {/*back icon container */}
       <View style={styles.leftContainer}>
         <TouchableOpacity onPress={onPress}>
-          <Image
-            source={require('../assets/Images/back-icon.png')}
-            style={styles.image}
-          />
+          <AntDesign name="left" size={30} color={colors.default} />
         </TouchableOpacity>
       </View>
-      {/*back icon container */}
+      {/*label */}
       <Text style={styles.text}>{text}</Text>
       {/*extra container */}
       <View style={styles.rightContainer} />
@@ -29,22 +31,21 @@ const styles = StyleSheet.create({
   header: {
     height: 95,
     width: '100%',
-    backgroundColor: '#FFEB83',
-    borderColor: '#FFEB83',
-    //elevation: 4, // is it a shadow ??
+    backgroundColor: colors.Yellow,
+    borderColor: colors.Yellow,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1.5,
-    borderLeftWidth: 1.5,
-    borderRightWidth: 1.5,
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomLeftWidth: 1,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
-    borderBottomLeftWidth: 1.5,
   },
   text: {
     fontFamily: 'Nunito-Bold',
-    color: colors.blackFont,
+    color: colors.default,
     fontSize: 24,
   },
   image: {

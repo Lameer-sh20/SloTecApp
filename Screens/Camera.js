@@ -1,17 +1,11 @@
 // import React in our code
 import React, {Component} from 'react';
-import {
-  TouchableOpacity,
-  Image,
-  Text,
-  View,
-  Alert,
-  StyleSheet,
-} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class CameraPage extends Component {
+  //define params
   constructor(props) {
     super(props);
     this.camera = null;
@@ -43,7 +37,7 @@ class CameraPage extends Component {
         this.props.navigation.navigate('ScannedProductPage');
       }
       //console.log('saved is', this.barcodeCodes);
-      this.barcodeCodes = [];
+      //this.barcodeCodes = [];
       //console.log('after is  is', this.barcodeCodes);
     }
     return;
@@ -97,27 +91,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  bottomOverlay: {
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  enterBarcodeManualButton: {
-    padding: 15,
-    backgroundColor: 'white',
-    borderRadius: 40,
-  },
-  scanScreenMessage: {
-    fontSize: 14,
-    color: 'white',
-    textAlign: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  image: {
-    width: 21,
-    height: 26.7,
-  },
+  // bottomOverlay: {
+  //   bottom: 0,
+  //   backgroundColor: 'rgba(0,0,0,0.4)',
+  //   flexDirection: 'row',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // enterBarcodeManualButton: {
+  //   padding: 15,
+  //   backgroundColor: 'white',
+  //   borderRadius: 40,
+  // },
+  // scanScreenMessage: {
+  //   fontSize: 14,
+  //   color: 'white',
+  //   textAlign: 'center',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
+  // image: {
+  //   width: 21,
+  //   height: 26.7,
+  // },
 });

@@ -1,17 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TextInput,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-  Alert,
-  AsyncStorage,
-} from 'react-native';
+import React, {useState} from 'react';
+import {Text, View, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import colors from '../assets/colors/Colors';
-//import {AsyncStorage} from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // import components
 import {REACT_APP_address} from '@env';
@@ -19,24 +10,68 @@ import SignHeader from '../Components/SignHeader';
 import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';
 
+// resetting password flow: ResetPassPage >> VerficationPage2 >> ResetPassPage2
 function ResetPassPage() {
-  const navigation = useNavigation();
   //parameters
-  const [name, setName] = useState('');
+  const navigation = useNavigation();
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
 
   //functions
 
-  //   const submitData = () => {};
-
+  // if user clicks on continue
+  const submitData = async () => {
+    if (phone.length > 10 && phone.length > 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Alert!',
+        text2: 'Phone must be 10 digits',
+        visibilityTime: 4000,
+      });
+    } else if (phone.length === 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Please fill the required information',
+        visibilityTime: 4000,
+      });
+      //console.warn('fill the required info');
+    } else {
+      //all conditions are valid, save in local storage and connect with backend
+      try {
+        const user = JSON.stringify({
+          phone: phone,
+        });
+        await AsyncStorage.setItem('PhoneTemp', user);
+      } catch (error) {
+        console.warn(error);
+      }
+      //start connecting with backend, send otp to number
+      fetch('http:/' + REACT_APP_address + ':3000/user/sendOTP', {
+        method: 'POST', // or 'PUT'
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({phone}),
+      })
+        .then(response => response.json())
+        .then(data => {
+          //if otp is sent correctly go to verficationpage2
+          navigation.navigate('VerficationPage2');
+          //console.log('respond is ', data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  };
   // actual page flow
   return (
     <View style={styles.pageContainer}>
+      {/**header */}
       <SignHeader
         text="Reset Password"
         onPress={() => navigation.navigate('SignUpPage')}
       />
+      {/**inputs section */}
       <View style={styles.textContainer}>
         <Text style={styles.text}>
           Please complete the following information
@@ -44,20 +79,26 @@ function ResetPassPage() {
           to reset your password
         </Text>
       </View>
+      <Toast
+        ref={ref => {
+          Toast.setRef(ref);
+        }}
+      />
       <View style={styles.inputsContainer} behavior="padding">
         <InputBox
           placeholder="05xxxxxxxx"
           value={phone}
           onChangeText={text => setPhone(text)}
         />
-        <InputBox
-          placeholder="New password"
-          value={password}
-          onChangeText={text => setPassword(text)}
-        />
       </View>
+      {/**continue button */}
       <View style={styles.buttonContainer}>
-        <LongButton text="Countinue" onPress={'...'} />
+        <LongButton
+          text="Countinue"
+          onPress={() => {
+            submitData();
+          }}
+        />
       </View>
     </View>
   );

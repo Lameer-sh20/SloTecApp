@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-toast-message';
 
+//import componants
 import colors from '../assets/colors/Colors';
+import {REACT_APP_address} from '@env';
 
 function ProductPage({navigation, route}) {
   //params
@@ -23,16 +25,31 @@ function ProductPage({navigation, route}) {
   const [similarProducts, setSimilarProducts] = useState([]);
 
   let chosenProduct = route.params.product;
-  //let storeId = route.params.storeid;
 
   //functions
   useEffect(() => {
+    const getData = async () => {
+      try {
+        //const value = await AsyncStorage.clear();
+        const value = await AsyncStorage.getItem('CartData');
+        //const prod = await AsyncStorage.getItem('chosenProduct');
+        if (value !== null) {
+          setcartItem(JSON.parse(value));
+          //console.warn('got it', JSON.parse(value).product);
+        } else {
+          console.warn('cart is empty', value);
+        }
+      } catch (e) {
+        console.error('no CartData in storage');
+      }
+    };
     getData();
   }, [quantity, cartItem]);
 
+  //find similar products
   useEffect(() => {
     const findSimilar = () => {
-      fetch('http:/192.168.8.111:3000/product/FindSimilar', {
+      fetch('http:/' + REACT_APP_address + ':3000/product/FindSimilar', {
         method: 'POST', // or 'PUT'
         headers: {
           'Content-Type': 'application/json',
@@ -40,6 +57,7 @@ function ProductPage({navigation, route}) {
         body: JSON.stringify({
           storeId: chosenProduct.storeId,
           categoryId: chosenProduct.categoryId,
+          id: chosenProduct.id,
         }),
       })
         .then(response => response.json())
@@ -52,8 +70,9 @@ function ProductPage({navigation, route}) {
         });
     };
     findSimilar();
-  }, [chosenProduct.storeId, chosenProduct.categoryId]);
+  }, [chosenProduct.storeId, chosenProduct.categoryId, chosenProduct.id]);
 
+  //to increment and decreament quantity
   const increment = () => {
     const value = (quantity += 1);
     //console.log('increament', quantity);
@@ -66,110 +85,11 @@ function ProductPage({navigation, route}) {
       setQuantity(value);
     } else {
       //setQuantity(value);
-      console.log('no less than zero', quantity);
+      //console.log('no less than zero', quantity);
     }
   };
 
-  // add to cart even if product exists !!
-  // const addToCart = async data => {
-  //   //console.warn('new !!!', data.id);
-  //   const cartProduct = {
-  //     product: data,
-  //     quant: quantity,
-  //   };
-  //   let prod = cartItem.find(item => item.product.id === data.id);
-
-  //   // const cartProduct = [
-  //   //   {
-  //   //     product: data,
-  //   //     quant: quantity,
-  //   //   },
-  //   // ];
-  //   // try {
-  //   //   await AsyncStorage.setItem('cart', JSON.stringify(cartProduct));
-  //   //   console.warn('product saved!');
-  //   // } catch (error) {
-  //   //   console.warn('product error,', error);
-  //   // }
-  //   await AsyncStorage.getItem('CartData')
-  //     .then(res => {
-  //       if (res != null) {
-  //         //console.warn('is not null', res);
-  //         const newcart = JSON.parse(res);
-  //         //console.warn('new product', cartProduct);
-  //         newcart.push(cartProduct);
-  //         //console.warn('add to cart', newcart);
-  //         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
-  //         console.warn('product saved!');
-  //       } else {
-  //         console.warn('cart is empty');
-  //         const newcart = [];
-  //         newcart.push(cartProduct);
-  //         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
-  //       }
-  //     })
-  //     .catch(err => {
-  //       console.warn(err);
-  //     });
-  //   // try {
-  //   //   if (cart !== null) {
-  //   //     console.warn('cart has items');
-  //   //     const newcart = JSON.parse(cart);
-  //   //     newcart.push(cartProduct);
-  //   //     await AsyncStorage.setItem('cart', JSON.stringify(newcart));
-  //   //     console.warn('cart is not null');
-  //   //   } else {
-  //   //     console.warn('cart is empty');
-  //   //   }
-  //   // } catch (e) {
-  //   //   console.warn('cant add to cart', e);
-  //   // }
-  //   ////////////////////
-  //   // try {
-  //   //   const value = JSON.parse(JSON.stringify({data}));
-  //   //   console.log('cant store', value);
-  //   //   setcartItem(value(data));
-  //   // } catch (e) {
-  //   //   console.log('cant store', e);
-  //   // }
-
-  //   //console.warn(data);
-  //   //const cartProduct = {product: data, quant: quantity};
-  //   //const existingProducts = await AsyncStorage.getItem('Cart');
-  //   // let newProduct = JSON.parse(existingProducts);
-  //   // if (!newProduct) {
-  //   //   newProduct = [];
-  //   //   newProduct.push(cartProduct);
-  //   // }
-  //   // await AsyncStorage.setItem('Cart', JSON.stringify(newProduct))
-  //   //   .then(() => {
-  //   //     console.log('It was saved successfully');
-  //   //   })
-  //   //   .catch(() => {
-  //   //     console.log('There was an error saving the product');
-  //   //   });
-  //   // try {
-  //   //   await AsyncStorage.getItem('Cart').then(cart => {
-  //   //     if (cart != null) {
-  //   //       console.warn('cart has items');
-  //   //       const value = JSON.parse(cart);
-  //   //       value.push(data);
-  //   //       AsyncStorage.setItem('UserCart', JSON.stringify(value));
-  //   //       console.warn('cart is not null');
-  //   //     } else {
-  //   //       console.warn('cart is empty');
-  //   //       const value = [];
-  //   //       value.push(data);
-  //   //       AsyncStorage.setItem('Cart', JSON.stringify(value));
-  //   //       console.warn('cart was null');
-  //   //     }
-  //   //     console.warn('check successfully');
-  //   //   });
-  //   // } catch (error) {
-  //   //   console.warn('error,', error);
-  //   // }
-  // };
-
+  //adding product to cart
   const addToCart1 = async data => {
     //await AsyncStorage.getItem('CartData').clear();
     //console.error('before add', data);
@@ -202,31 +122,14 @@ function ProductPage({navigation, route}) {
     }
   };
 
-  const getData = async () => {
-    try {
-      //const value = await AsyncStorage.clear();
-      const value = await AsyncStorage.getItem('CartData');
-      //const prod = await AsyncStorage.getItem('chosenProduct');
-      if (value !== null) {
-        setcartItem(JSON.parse(value));
-        // const cartData = cartItem;
-        //console.warn('got it', JSON.parse(value).product);
-        //console.warn('chosen is', JSON.parse(prod));
-      } else {
-        //console.warn('nothing', value);
-      }
-    } catch (e) {
-      // error reading value
-    }
-    //console.log('product is ', cartItem);
-  };
   return (
     <View style={{flex: 1}}>
       <View style={styles.topButtonsContainer}>
+        {/**header */}
         <TouchableOpacity
           style={styles.arrowContainer}
           onPress={() => navigation.navigate('StorePage')}>
-          <Ionicons name="ios-chevron-back-outline" size={30} color="#484038" />
+          <AntDesign name="left" size={28} color="#484038" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('UserCart')}
@@ -238,6 +141,7 @@ function ProductPage({navigation, route}) {
           />
         </TouchableOpacity>
       </View>
+      {/**product information*/}
       <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
         <View style={styles.prodImageContainer}>
           <Image
@@ -245,7 +149,9 @@ function ProductPage({navigation, route}) {
             resizeMode="contain"
             source={{
               uri:
-                'http://192.168.8.111:3000//' +
+                'http:/' +
+                REACT_APP_address +
+                ':3000//' +
                 chosenProduct.image.replace(/\\/g, '//'),
             }}
           />
@@ -262,18 +168,18 @@ function ProductPage({navigation, route}) {
               <View style={styles.priceContainer}>
                 <Text
                   style={[
-                    Number(chosenProduct.sellPrice) <
+                    Number(chosenProduct.sellPrice) !==
                     Number(chosenProduct.price)
                       ? styles.oldPrice
                       : styles.sellPrice,
                   ]}>
-                  SAR {chosenProduct.price}
+                  {chosenProduct.price * quantity} SAR
                 </Text>
                 <Text style={styles.sellPrice}>
                   {Number(chosenProduct.sellPrice) ===
                   Number(chosenProduct.price)
                     ? ' '
-                    : 'SAR ' + chosenProduct.sellPrice}
+                    : chosenProduct.sellPrice * quantity + ' SAR'}
                 </Text>
               </View>
             </View>
@@ -308,14 +214,17 @@ function ProductPage({navigation, route}) {
           </View>
         </View>
         <View style={styles.line} />
-
+        {/**similar product*/}
         <Text style={styles.similarText}>Similar Products</Text>
         <ScrollView horizontal={true}>
           <View
             style={{flex: 3, backgroundColor: 'white', flexDirection: 'row'}}>
             {similarProducts.map((item, i) => {
               return (
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('ProductPage', {product: item})
+                  }>
                   <View style={styles.similarProduct}>
                     <View style={styles.similarImageContainer}>
                       <Image
@@ -323,7 +232,9 @@ function ProductPage({navigation, route}) {
                         resizeMode="contain"
                         source={{
                           uri:
-                            'http://192.168.8.111:3000//' +
+                            'http:/' +
+                            REACT_APP_address +
+                            ':3000//' +
                             item.image.replace(/\\/g, '//'),
                         }}
                       />
@@ -335,16 +246,16 @@ function ProductPage({navigation, route}) {
                       <Text style={styles.similarProductName}>{item.name}</Text>
                       <Text
                         style={[
-                          Number(item.sellprice) < Number(item.price)
+                          Number(item.sellPrice) !== Number(item.price)
                             ? styles.similarOldPrice
                             : styles.similarSellPrice,
                         ]}>
-                        SAR {item.price}
+                        {item.price} SAR
                       </Text>
                       <Text style={styles.similarSellPrice}>
                         {Number(item.sellPrice) === Number(item.price)
                           ? ' '
-                          : 'SAR ' + item.sellPrice}
+                          : item.sellPrice + ' SAR'}
                       </Text>
                     </View>
                   </View>
@@ -405,10 +316,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    borderColor: '#E7E7EB',
-    borderTopWidth: 1.2,
-    borderLeftWidth: 1.5,
-    borderRightWidth: 1.5,
+    borderColor: colors.borderColor,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
   },
   name_price: {
     paddingHorizontal: 16,
@@ -419,27 +330,27 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: 'Nunito-Bold',
-    color: '#212429',
-    fontSize: 20,
+    color: colors.default,
+    fontSize: 18,
   },
   size_priceContainer: {
-    paddingVertical: 10,
+    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   size: {
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.default,
     fontSize: 16,
   },
   oldPrice: {
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.gray2,
     fontSize: 16,
     textDecorationLine: 'line-through',
   },
   sellPrice: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: 'Nunito-SemiBold',
     color: colors.blue,
     fontSize: 16,
   },
@@ -450,8 +361,8 @@ const styles = StyleSheet.create({
   },
   quantText: {
     paddingHorizontal: 10,
-    fontFamily: 'Nunito-Bold',
-    color: '#212429',
+    fontFamily: 'Nunito-SemiBold',
+    color: colors.default,
     fontSize: 16,
   },
   quant_add: {
@@ -479,7 +390,7 @@ const styles = StyleSheet.create({
   },
   line: {
     height: 1,
-    backgroundColor: '#E7E7EB',
+    backgroundColor: colors.borderColor,
     marginLeft: 16,
     marginRight: 16,
   },
@@ -487,27 +398,24 @@ const styles = StyleSheet.create({
     padding: 16,
     fontFamily: 'Nunito-Regular',
     color: '#212429',
-    fontSize: 15,
+    fontSize: 16,
   },
   similarText: {
     padding: 16,
     fontFamily: 'Nunito-Bold',
-    color: '#212429',
-    fontSize: 20,
-  },
-  similarProductsContainer: {
-    backgroundColor: 'red',
+    color: colors.default,
+    fontSize: 18,
   },
   similarProduct: {
     backgroundColor: '#ffffff',
     width: 150,
     height: 190,
-    borderWidth: 1.2,
+    borderWidth: 1,
     borderRadius: 15,
     marginLeft: 5,
     marginRight: 5,
     marginBottom: 5,
-    borderColor: '#E7E7EB',
+    borderColor: colors.borderColor,
     //marginRight: 10,
     //alignItems: 'center',
   },
@@ -531,20 +439,119 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   similarProductName: {
-    fontFamily: 'Nunito-Bold',
-    color: '#212429',
+    fontFamily: 'Nunito-SemiBold',
+    color: colors.default,
     fontSize: 13,
     paddingVertical: 3,
   },
   similarOldPrice: {
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
+    color: colors.gray2,
     fontSize: 13,
     textDecorationLine: 'line-through',
   },
   similarSellPrice: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: 'Nunito-SemiBold',
     color: colors.blue,
     fontSize: 13,
   },
 });
+// add to cart even if product exists !!
+// const addToCart = async data => {
+//   //console.warn('new !!!', data.id);
+//   const cartProduct = {
+//     product: data,
+//     quant: quantity,
+//   };
+//   let prod = cartItem.find(item => item.product.id === data.id);
+
+//   // const cartProduct = [
+//   //   {
+//   //     product: data,
+//   //     quant: quantity,
+//   //   },
+//   // ];
+//   // try {
+//   //   await AsyncStorage.setItem('cart', JSON.stringify(cartProduct));
+//   //   console.warn('product saved!');
+//   // } catch (error) {
+//   //   console.warn('product error,', error);
+//   // }
+//   await AsyncStorage.getItem('CartData')
+//     .then(res => {
+//       if (res != null) {
+//         //console.warn('is not null', res);
+//         const newcart = JSON.parse(res);
+//         //console.warn('new product', cartProduct);
+//         newcart.push(cartProduct);
+//         //console.warn('add to cart', newcart);
+//         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
+//         console.warn('product saved!');
+//       } else {
+//         console.warn('cart is empty');
+//         const newcart = [];
+//         newcart.push(cartProduct);
+//         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
+//       }
+//     })
+//     .catch(err => {
+//       console.warn(err);
+//     });
+//   // try {
+//   //   if (cart !== null) {
+//   //     console.warn('cart has items');
+//   //     const newcart = JSON.parse(cart);
+//   //     newcart.push(cartProduct);
+//   //     await AsyncStorage.setItem('cart', JSON.stringify(newcart));
+//   //     console.warn('cart is not null');
+//   //   } else {
+//   //     console.warn('cart is empty');
+//   //   }
+//   // } catch (e) {
+//   //   console.warn('cant add to cart', e);
+//   // }
+//   ////////////////////
+//   // try {
+//   //   const value = JSON.parse(JSON.stringify({data}));
+//   //   console.log('cant store', value);
+//   //   setcartItem(value(data));
+//   // } catch (e) {
+//   //   console.log('cant store', e);
+//   // }
+
+//   //console.warn(data);
+//   //const cartProduct = {product: data, quant: quantity};
+//   //const existingProducts = await AsyncStorage.getItem('Cart');
+//   // let newProduct = JSON.parse(existingProducts);
+//   // if (!newProduct) {
+//   //   newProduct = [];
+//   //   newProduct.push(cartProduct);
+//   // }
+//   // await AsyncStorage.setItem('Cart', JSON.stringify(newProduct))
+//   //   .then(() => {
+//   //     console.log('It was saved successfully');
+//   //   })
+//   //   .catch(() => {
+//   //     console.log('There was an error saving the product');
+//   //   });
+//   // try {
+//   //   await AsyncStorage.getItem('Cart').then(cart => {
+//   //     if (cart != null) {
+//   //       console.warn('cart has items');
+//   //       const value = JSON.parse(cart);
+//   //       value.push(data);
+//   //       AsyncStorage.setItem('UserCart', JSON.stringify(value));
+//   //       console.warn('cart is not null');
+//   //     } else {
+//   //       console.warn('cart is empty');
+//   //       const value = [];
+//   //       value.push(data);
+//   //       AsyncStorage.setItem('Cart', JSON.stringify(value));
+//   //       console.warn('cart was null');
+//   //     }
+//   //     console.warn('check successfully');
+//   //   });
+//   // } catch (error) {
+//   //   console.warn('error,', error);
+//   // }
+// };

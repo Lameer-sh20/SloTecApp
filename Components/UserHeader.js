@@ -1,11 +1,17 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Text, View, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import colors from '../assets/colors/Colors';
 import {useNavigation} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+//import componants
+import colors from '../assets/colors/Colors';
 
 function UserHeader({name, storename}) {
+  //params
   const navigation = useNavigation();
+
+  //functions
 
   return (
     <View style={styles.container}>
@@ -25,7 +31,7 @@ function UserHeader({name, storename}) {
         <View style={styles.name_cartContainer}>
           {/* Name Container */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('PersonalMenu')}
+            onPress={() => navigation.navigate('UserInfo')}
             style={styles.nameContainer}>
             <Text style={styles.textName}>Hello, {name}</Text>
           </TouchableOpacity>
@@ -53,13 +59,13 @@ const styles = StyleSheet.create({
     height: 95,
     backgroundColor: '#FCFDFF',
     width: '100%',
-    borderColor: '#E7E7EB',
-    borderBottomWidth: 1.5,
-    borderLeftWidth: 1.5,
-    borderRightWidth: 1.5,
+    borderColor: colors.borderColor,
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
-    borderBottomLeftWidth: 1.5,
+    borderBottomLeftWidth: 1,
   },
   headerContent: {
     paddingVertical: 15,
@@ -91,28 +97,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  imageWarning: {
-    width: 18,
-    height: 18,
-    bottom: 0,
-    left: 5,
-  },
   textName: {
     fontFamily: 'Nunito-Bold',
-    color: colors.blackFont,
+    color: colors.default,
     fontSize: 24,
   },
   cartContainer: {
-    backgroundColor: '#FFEB83',
+    backgroundColor: colors.Yellow,
     width: 35,
     height: 35,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  imageShoppingCart: {
-    width: 18,
-    height: 18,
-    top: 8,
   },
 });

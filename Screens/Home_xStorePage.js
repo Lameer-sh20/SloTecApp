@@ -8,31 +8,33 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+//import componant
 import colors from '../assets/colors/Colors';
 import {REACT_APP_address} from '@env';
 import UserHeader from '../Components/UserHeader';
 
 function Home_xStorePage({navigation}) {
+  //params
   const [name, setName] = useState('');
   const [storeProducts, setStoreProducts] = useState([]);
   const [storeID, setStoreID] = useState('');
   const [storeName, setStoreName] = useState('');
 
-  //const [productId, setproductId] = useState('');
-
+  //functions
+  //calls getdata function
   useEffect(() => {
     getData();
   }, []);
 
+  //to get user and store data from storage
   const getData = async () => {
     try {
       const storedata = await AsyncStorage.getItem('StoreData');
       const value = await AsyncStorage.getItem('UserData');
       if (value !== null || storedata !== null) {
-        //console.warn(JSON.parse(value).name);
+        //console.warn(JSON.parse(value));
         //console.warn(JSON.parse(storedata));
         //console.warn('store data are ', JSON.parse(storedata));
         setStoreName(JSON.parse(storedata).storeName);
@@ -40,13 +42,14 @@ function Home_xStorePage({navigation}) {
         setStoreID(JSON.parse(storedata).storeID);
         setName(JSON.parse(value).name);
       } else if (storedata == null || value == null) {
-        console.warn('store data is null');
+        console.warn('StoreData is null');
       }
     } catch (e) {
       console.error(e);
     }
   };
 
+  //to render products list
   const productsMenu = ({item}) => {
     const handleOnPress = () => {
       navigation.navigate('ProductPage', {product: item});
@@ -71,22 +74,22 @@ function Home_xStorePage({navigation}) {
           />
         </View>
         {/**line */}
-        <View style={{height: 1.2, backgroundColor: '#E7E7EB'}} />
+        <View style={{height: 1, backgroundColor: '#E7E7EB'}} />
         {/**info */}
         <View style={styles.infoContainer}>
           <Text style={styles.productName}>{item.name}</Text>
           <Text
             style={[
-              Number(item.sellprice) < Number(item.price)
+              Number(item.sellPrice) !== Number(item.price)
                 ? styles.oldPrice
                 : styles.sellPrice,
             ]}>
-            SAR {item.price}
+            {item.price} SAR
           </Text>
           <Text style={styles.sellPrice}>
             {Number(item.sellPrice) === Number(item.price)
               ? ' '
-              : 'SAR ' + item.sellPrice}
+              : item.sellPrice + ' SAR'}
           </Text>
         </View>
       </TouchableOpacity>
@@ -95,19 +98,15 @@ function Home_xStorePage({navigation}) {
 
   return (
     <View style={styles.pageContainer}>
+      {/**header*/}
       <UserHeader name={name} storename={storeName} />
+      {/**latest offers*/}
       <View style={styles.Container}>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Latest Offers</Text>
         </View>
+        {/**products list*/}
         <View style={styles.menuContainer}>
-          {/* {storeProducts.map((item, i) => {
-            return (
-              <Text style={styles.productName}>
-                product name is {item.name}
-              </Text>
-            );
-          })} */}
           <FlatList
             data={storeProducts}
             keyExtractor={item => item.id}
@@ -130,7 +129,7 @@ const styles = StyleSheet.create({
   textContainer: {
     height: '5%',
     width: '95%',
-    backgroundColor: '#FECD42',
+    backgroundColor: colors.Yellow,
     borderRadius: 15,
     //borderColor: colors.mainYellow,
     //borderWidth: 0.5,
@@ -145,7 +144,7 @@ const styles = StyleSheet.create({
     marginBottom: 9,
   },
   text: {
-    color: 'white',
+    color: '#484038',
     fontSize: 25,
     fontFamily: 'Nunito-Bold',
   },
@@ -161,13 +160,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     width: '48%',
     height: 250,
-    borderWidth: 1.2,
+    borderWidth: 1,
     borderRadius: 15,
     marginLeft: 5,
     marginBottom: 5,
-    borderColor: '#E7E7EB',
-    //marginRight: 10,
-    //alignItems: 'center',
+    borderColor: colors.borderColor,
   },
   imageContainer: {
     alignSelf: 'center',
@@ -179,34 +176,34 @@ const styles = StyleSheet.create({
     height: '68%',
   },
   productImage: {
-    width: '90%',
-    height: '70%',
+    width: '95%',
+    height: '80%',
     backgroundColor: 'transparent',
   },
   infoContainer: {
     paddingLeft: 9,
   },
   productName: {
-    fontFamily: 'Nunito-Bold',
-    color: '#212429',
-    fontSize: 15,
+    fontFamily: 'Nunito-SemiBold',
+    color: colors.default,
+    fontSize: 14,
     paddingVertical: 3,
   },
   defaultPrice: {
-    fontFamily: 'Nunito-Regular',
-    color: '#212429',
-    fontSize: 15,
+    fontFamily: 'Nunito-SemiRegular',
+    color: colors.default,
+    fontSize: 14,
   },
   oldPrice: {
     fontFamily: 'Nunito-Regular',
-    color: '#212429',
-    fontSize: 15,
+    color: colors.gray2,
+    fontSize: 14,
     textDecorationLine: 'line-through',
   },
   sellPrice: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: 'Nunito-SemiBold',
     color: colors.blue,
-    fontSize: 15,
+    fontSize: 14,
   },
 });
 export default Home_xStorePage;

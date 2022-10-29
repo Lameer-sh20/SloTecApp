@@ -1,5 +1,5 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 import colors from '../assets/colors/Colors';
 
@@ -22,11 +22,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   button: {
-    backgroundColor: '#FFEB83',
+    backgroundColor: colors.Yellow,
     padding: 15,
     borderRadius: 10,
-    //borderColor: colors.mainYellow,
-    //borderWidth: 0.5,
 
     justifyContent: 'center',
     alignItems: 'center',
@@ -37,7 +35,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Nunito-Bold',
     color: '#484038',
-    //fontWeight: '700',
     fontSize: 17,
   },
 });
