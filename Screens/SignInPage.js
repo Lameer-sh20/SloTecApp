@@ -191,25 +191,3 @@ const styles = StyleSheet.create({
   },
 });
 export default SignInPage;
-
-// useEffect(() => {
-//   //setData();
-// });
-// const setData = async () => {
-//   if (phone.length == 0 || password.length == 0) {
-//     //console.warn('fill the required info');
-//   } else {
-//     try {
-//       const user = JSON.stringify({
-//         name: name,
-//         phone: phone,
-//         password: password,
-//       });
-//       //await AsyncStorage.setItem('UserData', JSON.stringify(user));
-//       await AsyncStorage.setItem('UserData', user);
-//       //console.log('account created successfully!', name);
-//     } catch (error) {
-//       console.warn(error);
-//     }
-//   }
-// };

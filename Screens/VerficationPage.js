@@ -158,23 +158,3 @@ const styles = StyleSheet.create({
   },
 });
 export default VerficationPage;
-
-// const getData = async () => {
-//   try {
-//     const value = await AsyncStorage.getItem('UserData');
-//     if (value !== null) {
-//       console.warn(JSON.parse(value));
-//     }
-//   } catch (e) {
-//     // error reading value
-//   }
-// };
-
-// const passData = () => {
-//   navigation.navigate('VerficationPage', {
-//     name: name,
-//     phone: phone,
-//     password: password,
-//     otp: OTP,
-//   });
-// };

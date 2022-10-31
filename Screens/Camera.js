@@ -36,9 +36,6 @@ class CameraPage extends Component {
         this.barcodeCodes = [];
         this.props.navigation.navigate('ScannedProductPage');
       }
-      //console.log('saved is', this.barcodeCodes);
-      //this.barcodeCodes = [];
-      //console.log('after is  is', this.barcodeCodes);
     }
     return;
   }
@@ -91,27 +88,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  // bottomOverlay: {
-  //   bottom: 0,
-  //   backgroundColor: 'rgba(0,0,0,0.4)',
-  //   flexDirection: 'row',
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-  // enterBarcodeManualButton: {
-  //   padding: 15,
-  //   backgroundColor: 'white',
-  //   borderRadius: 40,
-  // },
-  // scanScreenMessage: {
-  //   fontSize: 14,
-  //   color: 'white',
-  //   textAlign: 'center',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
-  // image: {
-  //   width: 21,
-  //   height: 26.7,
-  // },
 });

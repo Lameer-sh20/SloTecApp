@@ -626,39 +626,3 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
 });
-
-{
-  /* {purchaseProducts.map((item, i) => {
-            return (
-              <View style={styles.listContainer}>
-                <View style={styles.productContainer}>
-                  <View style={styles.name__size_priceContainer}>
-                    <View style={styles.name_sizeContainer}>
-                      <Text style={styles.name}>{item.product.name}</Text>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      height: 1,
-                      backgroundColor: '#E7E7EB',
-                      marginLeft: 10,
-                      marginRight: 10,
-                    }}
-                  />
-                  <View style={styles.quant_totalContainer}>
-                    <View style={styles.quantCounter}>
-                      <Text style={styles.quantText}>
-                        Quantity: {item.quant}
-                      </Text>
-                    </View>
-                    <Text style={styles.itemTotal}>
-                      {item.product.saleprice === undefined
-                        ? 'SAR ' + item.product.price * item.quant
-                        : 'SAR ' + item.product.saleprice * item.quant}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            );
-          })} */
-}

@@ -4,10 +4,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['new NativeEventEmitter']);
 
-// import NormalPage from './Screens/NormalPage';
-// import RandomPage from './Screens/RandomPage';
-// import MarketsPage from './Screens/MarketsPage';
-
 import MainPage from './Screens/MainPage';
 import SignUpPage from './Screens/SignUpPage';
 import SignInPage from './Screens/SignInPage';
@@ -27,7 +23,6 @@ import UserInvoices from './Screens/UserInvoices';
 import InvoiceDetails from './Screens/InvoiceDetails';
 import UserCart from './Screens/UserCart';
 import CameraPage from './Screens/Camera';
-import Location from './Screens/Location';
 import ProductPage from './Screens/ProductPage';
 import ScannedProductPage from './Screens/ScannedProductPage';
 import CheckoutPage from './Screens/CheckoutPage';
