@@ -107,6 +107,9 @@ function ResetPassPage() {
               text1: 'Password is updated successfully, please sign in',
               visibilityTime: 4000,
             });
+            setTimeout(() => {
+              navigation.navigate('SignInPage');
+            }, 2000);
           }
           //if password is not reseted successfully
           else {

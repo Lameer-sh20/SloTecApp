@@ -37,7 +37,7 @@ function ProductPage({navigation, route}) {
           setcartItem(JSON.parse(value));
           //console.warn('got it', JSON.parse(value).product);
         } else {
-          console.warn('cart is empty', value);
+          console.log('cart is empty', value);
         }
       } catch (e) {
         console.error('no CartData in storage');
@@ -222,6 +222,7 @@ function ProductPage({navigation, route}) {
             {similarProducts.map((item, i) => {
               return (
                 <TouchableOpacity
+                  key={item.id}
                   onPress={() =>
                     navigation.navigate('ProductPage', {product: item})
                   }>
@@ -456,102 +457,3 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
-// add to cart even if product exists !!
-// const addToCart = async data => {
-//   //console.warn('new !!!', data.id);
-//   const cartProduct = {
-//     product: data,
-//     quant: quantity,
-//   };
-//   let prod = cartItem.find(item => item.product.id === data.id);
-
-//   // const cartProduct = [
-//   //   {
-//   //     product: data,
-//   //     quant: quantity,
-//   //   },
-//   // ];
-//   // try {
-//   //   await AsyncStorage.setItem('cart', JSON.stringify(cartProduct));
-//   //   console.warn('product saved!');
-//   // } catch (error) {
-//   //   console.warn('product error,', error);
-//   // }
-//   await AsyncStorage.getItem('CartData')
-//     .then(res => {
-//       if (res != null) {
-//         //console.warn('is not null', res);
-//         const newcart = JSON.parse(res);
-//         //console.warn('new product', cartProduct);
-//         newcart.push(cartProduct);
-//         //console.warn('add to cart', newcart);
-//         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
-//         console.warn('product saved!');
-//       } else {
-//         console.warn('cart is empty');
-//         const newcart = [];
-//         newcart.push(cartProduct);
-//         AsyncStorage.setItem('CartData', JSON.stringify(newcart));
-//       }
-//     })
-//     .catch(err => {
-//       console.warn(err);
-//     });
-//   // try {
-//   //   if (cart !== null) {
-//   //     console.warn('cart has items');
-//   //     const newcart = JSON.parse(cart);
-//   //     newcart.push(cartProduct);
-//   //     await AsyncStorage.setItem('cart', JSON.stringify(newcart));
-//   //     console.warn('cart is not null');
-//   //   } else {
-//   //     console.warn('cart is empty');
-//   //   }
-//   // } catch (e) {
-//   //   console.warn('cant add to cart', e);
-//   // }
-//   ////////////////////
-//   // try {
-//   //   const value = JSON.parse(JSON.stringify({data}));
-//   //   console.log('cant store', value);
-//   //   setcartItem(value(data));
-//   // } catch (e) {
-//   //   console.log('cant store', e);
-//   // }
-
-//   //console.warn(data);
-//   //const cartProduct = {product: data, quant: quantity};
-//   //const existingProducts = await AsyncStorage.getItem('Cart');
-//   // let newProduct = JSON.parse(existingProducts);
-//   // if (!newProduct) {
-//   //   newProduct = [];
-//   //   newProduct.push(cartProduct);
-//   // }
-//   // await AsyncStorage.setItem('Cart', JSON.stringify(newProduct))
-//   //   .then(() => {
-//   //     console.log('It was saved successfully');
-//   //   })
-//   //   .catch(() => {
-//   //     console.log('There was an error saving the product');
-//   //   });
-//   // try {
-//   //   await AsyncStorage.getItem('Cart').then(cart => {
-//   //     if (cart != null) {
-//   //       console.warn('cart has items');
-//   //       const value = JSON.parse(cart);
-//   //       value.push(data);
-//   //       AsyncStorage.setItem('UserCart', JSON.stringify(value));
-//   //       console.warn('cart is not null');
-//   //     } else {
-//   //       console.warn('cart is empty');
-//   //       const value = [];
-//   //       value.push(data);
-//   //       AsyncStorage.setItem('Cart', JSON.stringify(value));
-//   //       console.warn('cart was null');
-//   //     }
-//   //     console.warn('check successfully');
-//   //   });
-//   // } catch (error) {
-//   //   console.warn('error,', error);
-//   // }
-// };

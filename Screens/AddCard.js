@@ -79,9 +79,9 @@ function AddCard() {
         const value = await AsyncStorage.getItem('token');
         if (value !== null) {
           setToken(JSON.parse(value));
-          console.log('token is not null');
+          console.log('token is not null,', value);
         } else {
-          console.warn('token is null');
+          console.warn('token is null,', value);
         }
       } catch (e) {
         console.error('error', e);
@@ -131,7 +131,7 @@ function AddCard() {
       //console.error('card lenght', cardNum.length);
       Toast.show({
         type: 'error',
-        text1: 'Card number is not 16 number',
+        text1: 'Card number must be 16 number',
         visibilityTime: 4000,
       });
     } else {
@@ -151,7 +151,7 @@ function AddCard() {
           Toast.show({
             type: 'error',
             text1: 'Card already saved',
-            visibilityTime: 4000,
+            visibilityTime: 3000,
           });
         } else {
           console.error('should not be here ');
@@ -174,15 +174,18 @@ function AddCard() {
               Toast.show({
                 type: 'success',
                 text1: data.message,
-                visibilityTime: 4000,
+                visibilityTime: 3000,
               });
+              setTimeout(() => {
+                navigation.navigate('UserCards');
+              }, 2000);
             } else {
               console.log(data.message);
-              // Toast.show({
-              //   type: 'error',
-              //   text1: data.message,
-              //   visibilityTime: 4000,
-              // });
+              Toast.show({
+                type: 'error',
+                text1: data.message,
+                visibilityTime: 3000,
+              });
             }
           })
           .catch(error => {

@@ -33,11 +33,12 @@ function UserCart() {
     const getToken = async () => {
       try {
         const value = await AsyncStorage.getItem('token');
-        if (value !== null) {
+        if (!value.match(/null/)) {
           setToken(JSON.parse(value));
-          console.log('token is not null');
+          console.log('token is not null,', value);
         } else {
-          console.log('token is null');
+          setToken(JSON.parse(null));
+          console.log('token is null,', value);
         }
       } catch (e) {
         console.error('error', e);
@@ -56,7 +57,7 @@ function UserCart() {
           setCartProducts(JSON.parse(value));
           //console.warn('cart is not empty', JSON.parse(value));
         } else {
-          //console.warn('cart is empty', value);
+          console.log('cart is empty', value);
         }
       } catch (e) {
         // error reading value
@@ -161,7 +162,7 @@ function UserCart() {
               };
               try {
                 AsyncStorage.setItem('PurchaseData', JSON.stringify(purchase));
-                console.warn('purchase data saved');
+                console.log('purchase data saved');
                 navigation.navigate('CheckoutPage');
               } catch (e) {
                 console.error('purchase data not saved');
@@ -421,117 +422,3 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
 });
-
-// cartProducts.map((item, i) => {
-//   return (
-//     <View>
-//       <Text>print {item.product.name}</Text>
-//     </View>
-//   );
-// })
-
-// const changeQuantity = async (id, type) => {
-//   //console.log('id is', id);
-//   const dataCar = cartProducts;
-//   //let prod = cartProducts.find(data => data.product.id === id);
-//   let currentquant = dataCar[id - 1].quant;
-//   //console.error('quant ', currentquant);
-//   //let prod = dataCar[id - 1].product;
-//   //console.error('prod ', prod);
-//   if (type === true) {
-//     console.log('should increase');
-//     let newquant = currentquant + 1;
-//     dataCar[id - 1].quant = newquant;
-//     setCartProducts(dataCar);
-//     try {
-//       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
-//       //console.warn('update saved!');
-//     } catch (error) {
-//       //console.warn('update error,', error);
-//     }
-//   } else if (type === false && currentquant >= 2) {
-//     console.log('should decrease');
-//     let newquant = currentquant - 1;
-//     dataCar[id - 1].quant = newquant;
-//     setCartProducts(dataCar);
-//     try {
-//       await AsyncStorage.setItem('CartData', JSON.stringify(dataCar));
-//       //console.warn('update saved!');
-//     } catch (error) {
-//       //console.warn('update error,', error);
-//     }
-//   } else if (type === false && currentquant === 1) {
-//     console.log('should delete');
-//     let deleted = dataCar.splice(id - 1, 1);
-//     console.error('deleted prod ', deleted);
-//     try {
-//       await AsyncStorage.setItem('cart', JSON.stringify(dataCar));
-//       //console.warn('update saved!');
-//     } catch (error) {
-//       //console.warn('update error,', error);
-//     }
-//   }
-// };
-
-// const cartList = ({item}) => {
-//   return (
-//     <View style={styles.listContainer}>
-//       {/**info */}
-//       <View style={styles.productContainer}>
-//         <View style={styles.name__size_priceContainer}>
-//           <View style={styles.name_sizeContainer}>
-//             <Text style={styles.name}>
-//               {item.product.name} and {item.product.id}
-//             </Text>
-//             <Text style={styles.size}>size</Text>
-//           </View>
-//           <View style={styles.priceContainer}>
-//             <Text
-//               style={[
-//                 styles.defaultPrice,
-//                 item.product.sellPrice === undefined
-//                   ? styles.sellPrice
-//                   : styles.oldPrice,
-//               ]}>
-//               SAR {item.product.price}
-//             </Text>
-//             <Text style={styles.sellPrice}>
-//               {item.product.sellPrice === undefined
-//                 ? ' '
-//                 : 'SAR ' + item.product.sellPrice}
-//             </Text>
-//           </View>
-//         </View>
-//         {/**line */}
-//         <View
-//           style={{
-//             height: 1,
-//             backgroundColor: '#E7E7EB',
-//             marginLeft: 10,
-//             marginRight: 10,
-//           }}
-//         />
-//         <View style={styles.quant_totalContainer}>
-//           <View style={styles.quantCounter}>
-//             <TouchableOpacity
-//               style={styles.plusMinusButtons}
-//               onPress={() => changeQuantity(item.product.id, false)}>
-//               <Feather name="minus" size={20} color="#484038" />
-//             </TouchableOpacity>
-//             <Text style={styles.quantText}>{item.quant}</Text>
-//             <TouchableOpacity
-//               style={styles.plusMinusButtons}
-//               onPress={() => changeQuantity(item.product.id, true)}>
-//               <Feather name="plus" size={20} color="#484038" />
-//             </TouchableOpacity>
-//           </View>
-//           <Text style={styles.itemsTotal}>
-//             {item.product.sellPrice === undefined
-//               ? 'SAR ' + item.product.price * item.quant
-//               : 'SAR ' + item.product.sellPrice * item.quant}
-//           </Text>
-//         </View>
-//       </View>
-//     </View>
-//   );
-// };

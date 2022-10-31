@@ -25,7 +25,6 @@ function UserCards() {
   const [creditCards, setCreditCards] = useState([]);
   const [userId, setUserId] = useState('');
   const [token, setToken] = useState('');
-
   //functions
   //get user id
   useEffect(() => {
@@ -52,9 +51,9 @@ function UserCards() {
         const value = await AsyncStorage.getItem('token');
         if (value !== null) {
           setToken(JSON.parse(value));
-          console.log('token is not null');
+          console.log('token is not null,', value);
         } else {
-          console.warn('token is null');
+          console.warn('token is null,', value);
         }
       } catch (e) {
         console.error('error', e);
@@ -77,18 +76,14 @@ function UserCards() {
         .then(response => response.json())
         .then(data => {
           //console.log(data);
-          if (data.cards.length !== 0) {
-            setCreditCards(JSON.parse(JSON.stringify(data.cards)));
-          } else {
-            console.log('user has no cards');
-          }
+          setCreditCards(JSON.parse(JSON.stringify(data.cards)));
         })
         .catch(error => {
           //console.error('Error: ', error);
         });
     };
     getCards();
-  }, [userId, token, creditCards]);
+  }, [token, userId, creditCards]);
 
   //delete card from DB
   const deleteCard = async item => {
@@ -131,6 +126,11 @@ function UserCards() {
           //backgroundColor: '#F4F4F8',
         }}>
         {/*reference to show toast message*/}
+        <Toast
+          ref={ref => {
+            Toast.setRef(ref);
+          }}
+        />
         <ScrollView>
           {/*show if user has no credit cards*/}
           {creditCards.length === 0 ? (
@@ -147,11 +147,6 @@ function UserCards() {
             creditCards.map((item, i) => {
               return (
                 <View key={item.id} style={styles.listContainer}>
-                  <Toast
-                    ref={ref => {
-                      Toast.setRef(ref);
-                    }}
-                  />
                   <View style={styles.cardContainer}>
                     <View style={styles.name__number_dataContainer}>
                       <Text style={styles.cardText}>{item.cardHolderName}</Text>
@@ -226,24 +221,3 @@ const styles = StyleSheet.create({
   },
 });
 export default UserCards;
-
-// const deleteCard = async item => {
-//   console.log('card is', i);
-//   const cardData = creditCards;
-//   if (cardData.length === 0) {
-//     console.log('empty');
-//   } else {
-//     //setStatus(true);
-//     let card = cardData[i].cardNumber;
-//     //console.error('the card ', card);
-//     //console.warn('before deleting', cardData);
-//     let deleted = cardData.splice(i, 1);
-//     try {
-//       await AsyncStorage.setItem('CardsData', JSON.stringify(cardData));
-//       //console.warn('update saved!');
-//     } catch (error) {
-//       //console.warn('update error,', error);
-//     }
-//     //console.warn('after delete ', cardData);
-//   }
-// };

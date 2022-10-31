@@ -11,6 +11,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 //import componants
 import {REACT_APP_address} from '@env';
@@ -57,19 +58,19 @@ function StoresMenu() {
                   setPosition(jsonRes.Address);
                 }
               } catch (err) {
-                console.log(err);
+                console.log('error', err);
               }
             })
             .catch(err => {
-              console.log(err);
+              console.log('error', err);
             });
         },
         error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
-        {enableHighAccuracy: true, timeout: 10000, maximumAge: 3600000},
+        {timeout: 30000, maximumAge: 3600000},
       );
     };
     getCurrentPosition();
-  }, []);
+  }, [position]);
 
   //get nearest stores list
   useEffect(() => {
@@ -87,9 +88,12 @@ function StoresMenu() {
         })
           .then(response => response.json())
           .then(data => {
-            const store = JSON.parse(JSON.stringify(data));
-            setStoreList(store.storeList);
-            //console.log('store is', store.storeList);
+            if (data.message.match('There are no stores nearby')) {
+              console.log('store is:', data);
+            } else {
+              const store = JSON.parse(JSON.stringify(data));
+              setStoreList(store.storeList);
+            }
           })
           .catch(error => {
             console.error('Error:', error);
@@ -97,7 +101,7 @@ function StoresMenu() {
       });
     };
     getStores();
-  }, []);
+  });
 
   //when user clicks on any store from the stores list, we get the store's product
   const userChoice = async (id, storename) => {
@@ -134,51 +138,78 @@ function StoresMenu() {
   };
 
   return (
-    <View>
+    <View style={{flex: 1}}>
       {/**header */}
       <GreyHeader text="Stores" />
       {/**user's current location */}
-      <ScrollView>
-        <View>
-          <Text style={styles.text}>Your location address is</Text>
-          <Text style={styles.locationText}>{position}</Text>
-          <Text style={styles.text}>Choose the store you are shopping at</Text>
-        </View>
-        {/**nearest stores list */}
-        <View style={styles.itemsContainer}>
-          {storeList.map((item, i) => {
-            return (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.storeOption}
-                onPress={() => userChoice(item.id, item.name)}>
-                <View style={styles.itemInfo}>
-                  <Image
-                    style={{width: 35, height: 35, marginRight: 9}}
-                    source={{
-                      uri:
-                        'http:/' +
-                        REACT_APP_address +
-                        ':3000//' +
-                        item.logo.replace(/\\/g, '//'),
-                    }}
-                  />
-                  <Text style={styles.itemText}>{item.name}</Text>
+      <View>
+        <Text style={styles.text}>Your location address is</Text>
+        <Text style={styles.locationText}>{position}</Text>
+        <Text style={styles.text}>Choose the store you are shopping at</Text>
+      </View>
+      <View
+        style={{
+          flex: 4.5,
+          paddingTop: 9,
+          //backgroundColor: '#F4F4F8',
+        }}>
+        {/**if user has no products in cart show message, if there is products show them*/}
+        <ScrollView>
+          {storeList.length === 0 ? (
+            <View style={styles.warningContainer}>
+              <MaterialCommunityIcons
+                name="alert-circle"
+                size={160}
+                color="#c4c4c4"
+              />
+              <Text style={styles.textWarning}>
+                There are no stores near you
+              </Text>
+            </View>
+          ) : (
+            storeList.map((item, i) => {
+              return (
+                <View style={styles.itemsContainer}>
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.storeOption}
+                    onPress={() => userChoice(item.id, item.name)}>
+                    <View style={styles.itemInfo}>
+                      <Image
+                        style={{width: 35, height: 35, marginRight: 9}}
+                        source={{
+                          uri:
+                            'http:/' +
+                            REACT_APP_address +
+                            ':3000//' +
+                            item.logo.replace(/\\/g, '//'),
+                        }}
+                      />
+                      <Text style={styles.itemText}>{item.name}</Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </ScrollView>
+              );
+            })
+          )}
+        </ScrollView>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
+  textWarning: {
+    marginTop: 5,
+    fontFamily: 'Nunito-Regular',
+    color: '#212429',
+    fontSize: 16,
+  },
+  warningContainer: {
+    marginTop: 150,
+    flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
     margin: 10,
@@ -222,37 +253,3 @@ const styles = StyleSheet.create({
   },
 });
 export default StoresMenu;
-
-// const getStoreProducts = () => {
-//   fetch('http:/192.168.8.111:3000/product/StoreProducts', {
-//     method: 'POST', // or 'PUT'
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({storeId: JSON.stringify(1)}),
-//   })
-//     .then(response => response.json())
-//     .then(data => {
-//       //const store = JSON.parse(JSON.stringify(data));
-//       console.log('products are ', data.Products);
-//       //setStoreList(store.storeList);
-//     })
-//     .catch(error => {
-//       console.error('Error:', error);
-//     });
-// };
-
-{
-  /* <View style={styles.name_sizeContainer}>
-  <Image
-    style={{width: 40, height: 40, marginRight: 9}}
-    source={{
-      uri: 'http://192.168.8.111:3000//' + item.logo.replace(/\\/g, '//'),
-    }}
-  />
-  <Text style={styles.name}>
-    {'http://192.168.8.111:3000//' + item.logo.replace(/\\/g, '//')}
-  </Text>
-  <Text style={styles.name}>{item.name}</Text>
-</View>; */
-}

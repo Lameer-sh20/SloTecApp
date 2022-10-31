@@ -9,10 +9,10 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Dropdown} from 'react-native-element-dropdown';
+import Toast from 'react-native-toast-message';
 
 //import componants
 import {REACT_APP_address} from '@env';
@@ -106,9 +106,9 @@ function CheckoutPage() {
         const value = await AsyncStorage.getItem('token');
         if (value !== null) {
           setToken(JSON.parse(value));
-          console.log('token is not null');
+          console.log('token is not null,', value);
         } else {
-          console.warn('token is null');
+          console.warn('token is null,', value);
         }
       } catch (e) {
         console.error('error', e);
@@ -130,18 +130,33 @@ function CheckoutPage() {
       })
         .then(response => response.json())
         .then(data => {
-          setFullCreditCards(data.cards);
+          //console.log(data);
+          if (data.cards[0] === undefined) {
+            Toast.show({
+              type: 'error',
+              text1: 'There are no saved credit cards to pay online',
+              text2: 'Click to add card or pay in cash',
+              onPress: () => {
+                navigation.navigate('AddCard');
+              },
+              visibilityTime: 3000,
+            });
+            console.log('no cards');
+          } else {
+            setFullCreditCards(data.cards);
+          }
         })
         .catch(error => {
-          console.error('Error: ', error);
+          //console.error('Error: ', error);
         });
     };
     getCards();
-  }, [userId, token]);
+  }, [userId, token, navigation]);
 
   //adjust cards just to view in credit cards list
   useEffect(() => {
     const adjustCards = () => {
+      //console.log('new array', newArray);
       try {
         let newArray = fullCreditCards.map(item => {
           return {
@@ -151,13 +166,12 @@ function CheckoutPage() {
           };
         });
         setCreditCards(newArray);
-        //console.log('new array', newArray);
       } catch (e) {
         //console.error('could not adjust cards, user does not have saved cards');
       }
     };
     adjustCards();
-  }, [fullCreditCards]);
+  }, [fullCreditCards, navigation]);
 
   //function is to handle user choice switching color (yellow, gray)
   const paymentChoice = type => {
@@ -190,6 +204,8 @@ function CheckoutPage() {
       },
     ]);
   };
+
+  //called by payment handler to set purchse based on user choice
   const setPurchase = async type => {
     //just to match needed format in DB
     const items = [];
@@ -263,7 +279,7 @@ function CheckoutPage() {
         .then(response => response.json())
         .then(data => {
           if (data.status === true) {
-            console.warn('invoice data', data.invoice_header);
+            //console.warn('invoice data', data.invoice_header);
             navigation.navigate('CardPaymentPage', {
               invoice_header: data.invoice_header,
             });
@@ -278,6 +294,7 @@ function CheckoutPage() {
       console.warn('not okay');
     }
   };
+
   ////////
   return (
     <View style={{flex: 1}}>
@@ -397,6 +414,11 @@ function CheckoutPage() {
           </TouchableOpacity>
         </View>
       </View>
+      <Toast
+        ref={ref => {
+          Toast.setRef(ref);
+        }}
+      />
     </View>
   );
 }

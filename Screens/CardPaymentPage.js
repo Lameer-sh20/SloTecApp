@@ -1,12 +1,5 @@
 import React, {useEffect} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+import {Text, View, StyleSheet, Alert, ActivityIndicator} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //import componants
@@ -23,12 +16,12 @@ function CardPaymentPage({navigation, route}) {
       setTimeout(() => {
         Alert.alert('Alert', 'Your purchase is successful', [
           {
-            text: 'OK',
+            text: 'View Invoice',
             onPress: () => {
               try {
                 AsyncStorage.setItem('CartData', JSON.stringify([]));
                 console.log('CartData is set to []');
-                navigation.navigate('StorePage');
+                navigation.navigate('UserInvoices');
               } catch (error) {
                 console.warn('could not set CartData to []');
               }

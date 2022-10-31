@@ -22,11 +22,12 @@ function PersonalMenu() {
     const getToken = async () => {
       try {
         const value = await AsyncStorage.getItem('token');
-        if (value !== null) {
+        if (!value.match(/null/)) {
           setToken(JSON.parse(value));
-          console.log('token is not null');
+          console.log('token is not null,', value);
         } else {
-          console.warn('token is null');
+          setToken(JSON.parse(null));
+          console.log('token is null,', value);
         }
       } catch (e) {
         console.error('error', e);
@@ -41,7 +42,7 @@ function PersonalMenu() {
       if (token != null) {
         navigation.navigate('UserInfo');
       } else {
-        console.log('token is null', token);
+        console.log('token is null,', token);
         try {
           Alert.alert('Warning', 'You do not have account in SloTec', [
             {
@@ -64,7 +65,7 @@ function PersonalMenu() {
       if (token != null) {
         navigation.navigate('UserCards');
       } else {
-        console.log('token is null', token);
+        console.log('token is null,', token);
         try {
           Alert.alert('Warning', 'You do not have account in SloTec', [
             {
@@ -87,7 +88,7 @@ function PersonalMenu() {
       if (token != null) {
         navigation.navigate('UserInvoices');
       } else {
-        console.log('token is null', token);
+        console.log('token is null,', token);
         try {
           Alert.alert('Warning', 'You do not have account in SloTec', [
             {
@@ -117,14 +118,12 @@ function PersonalMenu() {
           {
             text: 'OK',
             onPress: () => {
-              const deletedata = AsyncStorage.clear();
-              console.warn('all data deleted successfully');
-              navigation.navigate('MainPage');
+              deleteStorage();
             },
           },
         ]);
       } else {
-        console.log('token is null', token);
+        console.log('token is null,', token);
         try {
           Alert.alert('Warning', 'You do not have account in SloTec', [
             {
@@ -146,6 +145,12 @@ function PersonalMenu() {
     }
   };
 
+  //is called when user wants to sign out
+  const deleteStorage = async () => {
+    await AsyncStorage.clear();
+    console.log('all data deleted successfully');
+    navigation.navigate('MainPage');
+  };
   return (
     <View>
       {/*header*/}

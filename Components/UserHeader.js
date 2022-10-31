@@ -25,7 +25,8 @@ function UserHeader({name, storename}) {
             source={require('../assets/Images/location.png')}
             style={styles.imageLocation}
           />
-          <Text style={styles.textLocation}>{'  ' + storename}</Text>
+          <Text style={styles.textLocation}> Shopping at </Text>
+          <Text style={styles.textLocation2}>{storename}</Text>
         </TouchableOpacity>
         {/* name & cart container */}
         <View style={styles.name_cartContainer}>
@@ -84,7 +85,12 @@ const styles = StyleSheet.create({
     height: 20,
   },
   textLocation: {
-    fontFamily: 'Nunito-Rgular',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 14,
+    color: '#484038',
+  },
+  textLocation2: {
+    fontFamily: 'Nunito-Bold',
     fontSize: 14,
     color: '#484038',
   },

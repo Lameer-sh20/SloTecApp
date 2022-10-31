@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -18,20 +18,14 @@ function MainPage() {
   const [token, setToken] = useState('');
 
   //functions
+
   //check if we have token in storage
   const checkToken = async () => {
     try {
       const value = await AsyncStorage.getItem('token');
-      //token exists => user must sign up/in
-      if (value !== null) {
-        setToken(JSON.parse(value));
-        console.log(
-          'token exists, signup/in then sign out to remove token',
-          token,
-        );
-        //token doesn't exists => user can skip
-      } else if (value === null) {
-        console.log('token is null');
+      //token doesnexists => user can go if he closed app before
+      if (value === null) {
+        console.log('token is null,', value);
         try {
           const user = JSON.stringify({
             name: 'Guest',
@@ -43,11 +37,14 @@ function MainPage() {
         } catch (er) {
           console.error('error setting temp user data', er);
         }
+      } else {
+        console.log('token is not null, please sign in/up,', value);
       }
     } catch (e) {
       console.log('No token in Storage ', e);
     }
   };
+
   return (
     <View style={styles.container}>
       <ImageBackground

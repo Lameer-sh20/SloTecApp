@@ -26,12 +26,12 @@ function CashPaymentPage({navigation, route}) {
       setTimeout(() => {
         Alert.alert('Alert', 'Your purchase is successful', [
           {
-            text: 'OK',
+            text: 'View Invoice',
             onPress: () => {
               try {
                 AsyncStorage.setItem('CartData', JSON.stringify([]));
                 console.log('CartData is set to []');
-                navigation.navigate('StorePage');
+                navigation.navigate('UserInvoices');
               } catch (error) {
                 console.warn('could not set CartData to []');
               }

@@ -8,7 +8,6 @@ import Toast from 'react-native-toast-message';
 
 //import components
 import {REACT_APP_address} from '@env';
-import colors from '../assets/colors/Colors';
 import YellowHeader from '../Components/YellowHeader';
 import InputBox from '../Components/InputBox';
 import LongButton from '../Components/LongButton';
@@ -84,14 +83,16 @@ function UserInfo() {
               gender: data.user.gender,
               email: data.user.email,
             });
-            //console.error('res in signup', JSON.stringify(data.user));
-            //console.error('res in signup', JSON.stringify(data.token));
+            //console.error('res in userinfo', JSON.stringify(data.user));
             AsyncStorage.setItem('UserData', user);
             Toast.show({
               type: 'success',
               text1: 'Account updated successfully',
-              visibilityTime: 4000,
+              visibilityTime: 3000,
             });
+            setTimeout(() => {
+              navigation.navigate('StorePage');
+            }, 2000);
           } catch (error) {
             console.warn('data is not saved in storage');
           }
@@ -100,7 +101,7 @@ function UserInfo() {
             type: 'error',
             text1: 'Warning',
             text2: 'Account is not updated',
-            visibilityTime: 4000,
+            visibilityTime: 3000,
           });
         }
       })

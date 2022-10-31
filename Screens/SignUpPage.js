@@ -86,7 +86,7 @@ function SignUpPage() {
           else {
             Toast.show({
               type: 'error',
-              text1: 'Alert!',
+              text1: 'Alert',
               text2: data.message,
               visibilityTime: 5000,
             });

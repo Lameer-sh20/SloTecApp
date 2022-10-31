@@ -55,6 +55,7 @@ function SignInPage() {
         .then(response => response.json())
         .then(data => {
           //couldn't sign in user
+          //console.error('data is', data);
           if (data.status == null) {
             Toast.show({
               type: 'error',
@@ -62,7 +63,6 @@ function SignInPage() {
               text2: data.message,
               visibilityTime: 5000,
             });
-            console.error('data is', data);
           }
           //sign in user successfully, store data (info, token) in storage
           else {
