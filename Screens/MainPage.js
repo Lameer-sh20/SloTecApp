@@ -37,6 +37,19 @@ function MainPage() {
         } catch (er) {
           console.error('error setting temp user data', er);
         }
+      } else if (value.match(/null/)) {
+        console.log('token null,', value);
+        try {
+          const user = JSON.stringify({
+            name: 'Guest',
+          });
+          await AsyncStorage.setItem('UserData', user);
+          await AsyncStorage.setItem('token', JSON.stringify(null));
+          console.log('Temp data is saved');
+          navigation.navigate('StoresMenu');
+        } catch (er) {
+          console.error('error setting temp user data', er);
+        }
       } else {
         console.log('token is not null, please sign in/up,', value);
       }

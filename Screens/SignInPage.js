@@ -21,7 +21,7 @@ function SignInPage() {
 
   //if user clicks on continue
   const submitData = async () => {
-    if (password.length <= 3 && password.length > 0) {
+    if (password.length <= 2 && password.length > 0) {
       Toast.show({
         type: 'error',
         text1: 'Warning',

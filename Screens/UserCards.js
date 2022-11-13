@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useIsFocused} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
@@ -20,8 +21,8 @@ import YellowHeader from '../Components/YellowHeader';
 import LongButton from '../Components/LongButton';
 
 function UserCards() {
-  const navigation = useNavigation();
   //parameters
+  const navigation = useNavigation();
   const [creditCards, setCreditCards] = useState([]);
   const [userId, setUserId] = useState('');
   const [token, setToken] = useState('');

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, KeyboardAvoidingView} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,6 +22,7 @@ function AddCard() {
   const [cardHolderName, setCardHolderName] = useState('');
   const [cardNum, setCardNum] = useState('');
   const [expiresDate, setexpiresDate] = useState('');
+  const [CVV, setCVV] = useState('');
 
   const [year, setYear] = useState(null);
   const [month, setMonth] = useState(null);
@@ -119,7 +120,8 @@ function AddCard() {
     if (
       cardHolderName.length === 0 ||
       cardNum.length === 0 ||
-      expiresDate === 'null-null'
+      expiresDate === 'null-null' ||
+      CVV.length === 0
     ) {
       Toast.show({
         type: 'error',
@@ -141,6 +143,7 @@ function AddCard() {
           cardHolderName: cardHolderName,
           cardNum: cardNum,
           expDate: expiresDate,
+          CVV: CVV,
         };
         let credit = creditCards.find(
           card => card.cardNum === creditCard.cardNum,
@@ -224,6 +227,15 @@ function AddCard() {
             placeholder="xxxx xxxx xxxx xxxx"
             value={cardNum}
             onChangeText={text => setCardNum(text)}
+          />
+        </View>
+
+        <View style={styles.inputsContainer}>
+          <Text style={styles.label}>CVV</Text>
+          <InputBox
+            placeholder="XXX"
+            value={CVV}
+            onChangeText={text => setCVV(text)}
           />
         </View>
 

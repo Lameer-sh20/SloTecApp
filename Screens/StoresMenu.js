@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useIsFocused} from '@react-navigation/native';
 
 //import componants
 import {REACT_APP_address} from '@env';
@@ -21,63 +22,29 @@ import GreyHeader from '../Components/GreyHeader';
 function StoresMenu() {
   //params
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const [position, setPosition] = useState('');
   const [storeList, setStoreList] = useState([]);
 
   //functions
 
-  //get user's current position
+  //to call getcurrent position function
   useEffect(() => {
-    const getCurrentPosition = () => {
-      Geolocation.getCurrentPosition(
-        pos => {
-          //setPosition(JSON.stringify(pos));
-          console.log('latitude ' + JSON.stringify(pos.coords.latitude));
-          console.log('longitude ' + JSON.stringify(pos.coords.longitude));
-          //console.log(JSON.stringify({ Location_Latitude: pos['coords']['latitude'], Location_Longitude: pos['coords']['longitude'], }),  );
-          fetch('http:/' + REACT_APP_address + ':3000/store/address', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              Location_Latitude: pos.coords.latitude,
-              Location_Longitude: pos.coords.longitude,
-            }),
-          })
-            .then(async res => {
-              try {
-                const jsonRes = await res.json();
-                if (!jsonRes.status) {
-                  //store the data from here
-                  console.log(jsonRes.status);
-                  console.log('post', jsonRes);
-                } else {
-                  console.log(jsonRes.status);
-                  console.log(jsonRes.Address);
-                  setPosition(jsonRes.Address);
-                }
-              } catch (err) {
-                console.log('error', err);
-              }
-            })
-            .catch(err => {
-              console.log('error', err);
-            });
-        },
-        error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
-        {timeout: 30000, maximumAge: 3600000},
-      );
-    };
-    getCurrentPosition();
-  }, [position]);
+    if (isFocused) {
+      getCurrentPosition();
+    }
+  }, [isFocused, position]);
 
-  //get nearest stores list
-  useEffect(() => {
-    const getStores = () => {
-      Geolocation.getCurrentPosition(pos => {
-        fetch('http:/' + REACT_APP_address + ':3000/store/findNearest', {
-          method: 'POST', // or 'PUT'
+  //get user's current position
+  const getCurrentPosition = () => {
+    Geolocation.getCurrentPosition(
+      pos => {
+        //setPosition(JSON.stringify(pos));
+        console.log('latitude ' + JSON.stringify(pos.coords.latitude));
+        console.log('longitude ' + JSON.stringify(pos.coords.longitude));
+        //console.log(JSON.stringify({ Location_Latitude: pos['coords']['latitude'], Location_Longitude: pos['coords']['longitude'], }),  );
+        fetch('http:/' + REACT_APP_address + ':3000/store/address', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -86,22 +53,64 @@ function StoresMenu() {
             Location_Longitude: pos.coords.longitude,
           }),
         })
-          .then(response => response.json())
-          .then(data => {
-            if (data.message.match('There are no stores nearby')) {
-              console.log('store is:', data);
-            } else {
-              const store = JSON.parse(JSON.stringify(data));
-              setStoreList(store.storeList);
+          .then(async res => {
+            try {
+              const jsonRes = await res.json();
+              if (!jsonRes.status) {
+                //store the data from here
+                console.log(jsonRes.status);
+                console.log('post', jsonRes);
+              } else {
+                console.log(jsonRes.status);
+                console.log(jsonRes.Address);
+                setPosition(jsonRes.Address);
+              }
+            } catch (err) {
+              console.log('error', err);
             }
           })
-          .catch(error => {
-            console.error('Error:', error);
+          .catch(err => {
+            console.log('error', err);
           });
-      });
-    };
-    getStores();
-  });
+      },
+      error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
+      {timeout: 30000, maximumAge: 3600000},
+    );
+  };
+
+  //get nearest stores list
+  useEffect(() => {
+    if (isFocused) {
+      getStores();
+    }
+  }, [isFocused, position]);
+
+  const getStores = () => {
+    Geolocation.getCurrentPosition(pos => {
+      fetch('http:/' + REACT_APP_address + ':3000/store/findNearest', {
+        method: 'POST', // or 'PUT'
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Location_Latitude: pos.coords.latitude,
+          Location_Longitude: pos.coords.longitude,
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message.match('There are no stores nearby')) {
+            console.log('store is:', data);
+          } else {
+            const store = JSON.parse(JSON.stringify(data));
+            setStoreList(store.storeList);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    });
+  };
 
   //when user clicks on any store from the stores list, we get the store's product
   const userChoice = async (id, storename) => {

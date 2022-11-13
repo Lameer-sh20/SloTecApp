@@ -14,7 +14,7 @@ class CameraPage extends Component {
     this.state = {
       camera: {
         type: RNCamera.Constants.Type.back,
-        flashMode: RNCamera.Constants.FlashMode.auto,
+        //flashMode: RNCamera.Constants.FlashMode.auto,
       },
     };
   }
@@ -48,11 +48,11 @@ class CameraPage extends Component {
             this.camera = ref;
           }}
           defaultTouchToFocus
-          flashMode={this.state.camera.flashMode}
-          mirrorImage={false}
+          //flashMode={this.state.camera.flashMode}
+          //mirrorImage={false}
           onBarCodeRead={this.onBarCodeRead.bind(this)}
-          onFocusChanged={() => {}}
-          onZoomChanged={() => {}}
+          //onFocusChanged={() => {}}
+          //onZoomChanged={() => {}}
           style={styles.preview}
           type={this.state.camera.type}
         />

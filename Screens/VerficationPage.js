@@ -105,13 +105,13 @@ function VerficationPage() {
         text="Verfication"
         onPress={() => navigation.navigate('SignUpPage')}
       />
+      <Toast
+        ref={ref => {
+          Toast.setRef(ref);
+        }}
+      />
       {/**inputs section */}
       <View style={styles.textContainer}>
-        <Toast
-          ref={ref => {
-            Toast.setRef(ref);
-          }}
-        />
         <Text style={styles.text}>
           A confirmation code has been sent to your{'\n'} Please enter it below
         </Text>

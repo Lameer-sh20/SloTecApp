@@ -23,9 +23,11 @@ function CheckoutPage() {
   //params
   const navigation = useNavigation();
   const [userId, setUserId] = useState('');
+  const [userPhone, setUserPhone] = useState('');
   const [token, setToken] = useState('');
 
   const [storeId, setStoreId] = useState('');
+  const [storeName, setStoreName] = useState('');
 
   const [purchaseProducts, setPurchaseProducts] = useState([]);
   let [purchaseTotal, setPurchaseTotal] = useState();
@@ -70,6 +72,7 @@ function CheckoutPage() {
         const value = await AsyncStorage.getItem('UserData');
         if (value !== null) {
           setUserId(JSON.parse(value).id);
+          setUserPhone(JSON.parse(value).phone);
           //console.log(value);
         } else {
           console.warn('UserData is null');
@@ -87,8 +90,9 @@ function CheckoutPage() {
       try {
         const storedata = await AsyncStorage.getItem('StoreData');
         if (storedata !== null) {
-          //console.warn(JSON.parse(storedata).storeID);
+          //console.warn(JSON.parse(storedata));
           setStoreId(JSON.parse(storedata).storeID);
+          setStoreName(JSON.parse(storedata).storeName);
         } else if (storedata == null) {
           console.warn('StoreData is null');
         }
@@ -178,7 +182,7 @@ function CheckoutPage() {
     if (type === 'card') {
       setCashEnabled(false);
       setPayEnabled(true);
-      setPaymentType(JSON.stringify(2));
+      setPaymentType(JSON.stringify(3));
     } else if (type === 'cash') {
       setIsFocus(false);
       setValue(null);
@@ -254,42 +258,75 @@ function CheckoutPage() {
     }
     /////////////////////////////////////////////////
     ///2 = credit card
-    else if (type === '2') {
+    else if (type === '3') {
       //console.warn('pay with:', paymentType);
       //get chosen credit card
       let card = fullCreditCards.find(data => data.cardNum === value);
-      console.log('chosen card is', card);
+      //console.log('chosen card is', card);
+      ////
+      const PurchaseData = {
+        totalPrice: purchaseTotal,
+        paymentGatwayId: paymentType,
+        userId: userId,
+        storeId: storeId,
+        items: items,
+        CreditCardHolder: card.cardHolderName,
+        CreditCardNum: card.cardNum,
+        userPhone: userPhone,
+        storeName: storeName,
+      };
+      //console.log('products are ', data);
+      //save products in storage and go to storepage
+      try {
+        AsyncStorage.setItem('TempPurchase', JSON.stringify(PurchaseData));
+        navigation.navigate('CardPaymentPage');
+      } catch (error) {
+        console.warn('storedata error,', error);
+      }
+      // navigation.navigate('CardPaymentPage', {
+      //   creditCard: card,
+      //   userPhone: userPhone,
+      //   storeName: storeName,
+      //   totalPrice: purchaseTotal,
+      //   paymentGatwayId: paymentType,
+      //   userId: userId,
+      //   storeId: storeId,
+      //   items: items,
+      //   CreditCardHolder: card.cardHolderName,
+      //   CreditCardNum: card.cardNum,
+      // });
+      ////
       // send total and prodcuts to backend
-      fetch('http:/' + REACT_APP_address + ':3000/invoice/AddInvoice', {
-        method: 'POST', // or 'PUT'
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          totalPrice: purchaseTotal,
-          paymentGatwayId: paymentType,
-          userId: userId,
-          storeId: storeId,
-          items: items,
-          CreditCardHolder: card.cardHolderName,
-          CreditCardNum: card.cardNum,
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === true) {
-            //console.warn('invoice data', data.invoice_header);
-            navigation.navigate('CardPaymentPage', {
-              invoice_header: data.invoice_header,
-            });
-          } else {
-            console.warn('could not make purchase', data);
-          }
-        })
-        .catch(error => {
-          console.error('Error: ', error);
-        });
+      // fetch('http:/' + REACT_APP_address + ':3000/invoice/AddInvoice', {
+      //   method: 'POST', // or 'PUT'
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     totalPrice: purchaseTotal,
+      //     paymentGatwayId: paymentType,
+      //     userId: userId,
+      //     storeId: storeId,
+      //     items: items,
+      //     CreditCardHolder: card.cardHolderName,
+      //     CreditCardNum: card.cardNum,
+      //   }),
+      // })
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     if (data.status === true) {
+      //       //console.warn('invoice data', data.invoice_header);
+      //       navigation.navigate('CardPaymentPage', {
+      //         invoice_header: data.invoice_header,
+      //       });
+      //     } else {
+      //       console.warn('could not make purchase', data);
+      //     }
+      //   })
+      //   .catch(error => {
+      //     console.error('Error: ', error);
+      //   });
     } else {
       console.warn('not okay');
     }

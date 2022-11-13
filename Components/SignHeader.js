@@ -5,6 +5,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import colors from '../assets/colors/Colors';
 
+//same as grayheader but with back button
 const SignHeader = ({text, onPress}) => {
   //params
   const navigation = useNavigation();

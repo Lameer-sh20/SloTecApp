@@ -136,6 +136,7 @@ function ScannedProductPage({navigation, route}) {
 
   // adding item to cart
   const addToCart1 = async data => {
+    //await AsyncStorage.getItem('CartData').clear();
     //console.error('before add', data);
     let prod = cartItem.find(pro => pro.product.id === data.id);
     try {
@@ -154,15 +155,17 @@ function ScannedProductPage({navigation, route}) {
       const cartProduct = {
         product: data,
         quant: quantity,
-        storeid: storeId,
       };
       cartItem.push(cartProduct);
-      //console.warn('add to cart', newcart);
+      //console.warn('add to cart', cartItem);
       AsyncStorage.setItem('CartData', JSON.stringify(cartItem));
-      console.log('product saved!');
+      Toast.show({
+        text1: 'Product is Added to cart',
+        visibilityTime: 4000,
+      });
+      //console.warn('product saved!');
     }
   };
-
   return (
     <View style={{flex: 1}}>
       <View style={styles.topButtonsContainer}>

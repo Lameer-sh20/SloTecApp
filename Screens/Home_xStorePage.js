@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useIsFocused} from '@react-navigation/native';
 
 //import componant
 import colors from '../assets/colors/Colors';
@@ -17,6 +18,7 @@ import UserHeader from '../Components/UserHeader';
 
 function Home_xStorePage({navigation}) {
   //params
+  const isFocused = useIsFocused();
   const [name, setName] = useState('');
   const [storeProducts, setStoreProducts] = useState([]);
   const [storeID, setStoreID] = useState('');
@@ -25,9 +27,10 @@ function Home_xStorePage({navigation}) {
   //functions
   //calls getdata function
   useEffect(() => {
-    getData();
-  }, []);
-
+    if (isFocused) {
+      getData();
+    }
+  }, [isFocused]);
   //to get user and store data from storage
   const getData = async () => {
     try {

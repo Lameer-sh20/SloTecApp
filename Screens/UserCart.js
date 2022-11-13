@@ -25,6 +25,7 @@ function UserCart() {
 
   const [cartProducts, setCartProducts] = useState([]);
   let [cartTotal, setcartTotal] = useState();
+  const [checkoutEnabled, setCheckoutEnabled] = useState(false);
 
   //functions
 
@@ -55,6 +56,11 @@ function UserCart() {
         if (value !== null) {
           //console.warn('cart is not empty', cartProducts.length);
           setCartProducts(JSON.parse(value));
+          if (cartProducts.length === 0) {
+            setCheckoutEnabled(false);
+          } else {
+            setCheckoutEnabled(true);
+          }
           //console.warn('cart is not empty', JSON.parse(value));
         } else {
           console.log('cart is empty', value);
@@ -290,7 +296,14 @@ function UserCart() {
           <Text style={styles.totalText}>Total</Text>
           <Text style={styles.totalCartText}>SAR {cartTotal}</Text>
         </View>
-        <LongButton text="Checkout" onPress={() => setData()} />
+        <TouchableOpacity
+          style={
+            checkoutEnabled ? styles.buttonActivated : styles.buttonUnactivated
+          }
+          onPress={() => setData()}
+          disabled={!checkoutEnabled}>
+          <Text style={styles.buttonText}>Pay</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -410,6 +423,32 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  buttonActivated: {
+    backgroundColor: '#FFEB83',
+    padding: 15,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginHorizontal: 10,
+  },
+  buttonUnactivated: {
+    backgroundColor: colors.gray2,
+    padding: 15,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginHorizontal: 10,
+  },
+  buttonText: {
+    fontFamily: 'Nunito-Bold',
+    color: '#484038',
+    //fontWeight: '700',
+    fontSize: 17,
   },
   totalText: {
     fontFamily: 'Nunito-Bold',

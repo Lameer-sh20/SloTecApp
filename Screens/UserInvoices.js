@@ -94,10 +94,11 @@ function UserInvoices() {
       )
         .then(response => response.json())
         .then(data => {
-          if (data.invoices !== null) {
-            //console.log(data.invoices);
-            setInvoices(JSON.parse(JSON.stringify(data.invoices)));
-          }
+          // if (data.invoices !== null) {
+          //   console.log(data.invoices);
+          //   setInvoices(JSON.parse(JSON.stringify(data.invoices)));
+          // }
+          setInvoices(JSON.parse(JSON.stringify(data.invoices)));
           //console.log('user invoices ', data.invoices);
         })
         .catch(error => {
@@ -105,7 +106,7 @@ function UserInvoices() {
         });
     };
     getInvoices();
-  }, [token, userId, storeId]);
+  });
 
   return (
     <View style={{flex: 1}}>
